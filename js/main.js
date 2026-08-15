@@ -1,10 +1,10 @@
 // ============================================================
-// Home page logic: content loading, timecode, intro sequence
-// (theme + scroll progress/reveals now live in theme.js)
+// Home page logic: bilingual content loading, timecode, intro
 // ============================================================
 
-/* ---------------- LOAD SITE CONTENT FROM SUPABASE ---------------- */
+/* ---------------- LOAD SITE CONTENT FROM SUPABASE (bilingual) ---------------- */
 async function loadSiteContent() {
+  const lang = currentLang();
   try {
     const { data, error } = await supabaseClient.from('site_settings').select('*');
     if (error || !data) return;
@@ -13,15 +13,17 @@ async function loadSiteContent() {
     data.forEach(row => { settings[row.key] = row.value; });
 
     if (settings.hero) {
+      const h = settings.hero[lang] || settings.hero;
       const titleEl = document.getElementById('hero-title-text');
       const subtitleEl = document.getElementById('hero-subtitle-text');
-      if (titleEl && settings.hero.title) titleEl.textContent = settings.hero.title;
-      if (subtitleEl && settings.hero.subtitle) subtitleEl.textContent = settings.hero.subtitle;
+      if (titleEl && h.title) titleEl.textContent = h.title;
+      if (subtitleEl && h.subtitle) subtitleEl.textContent = h.subtitle;
     }
 
     if (settings.about) {
+      const a = settings.about[lang] || settings.about;
       const aboutEl = document.getElementById('about-text');
-      if (aboutEl && settings.about.text) aboutEl.textContent = settings.about.text;
+      if (aboutEl && a.text) aboutEl.textContent = a.text;
     }
 
     if (settings.contact) {
@@ -51,10 +53,11 @@ async function loadSiteContent() {
 async function loadFeaturedProjects() {
   const grid = document.getElementById('featured-grid');
   if (!grid) return;
+  const lang = currentLang();
   try {
     const { data, error } = await supabaseClient
       .from('projects')
-      .select('*, categories(name, slug)')
+      .select('*, categories(name, name_en, slug)')
       .eq('featured', true)
       .eq('published', true)
       .order('sort_order', { ascending: true })
@@ -62,15 +65,18 @@ async function loadFeaturedProjects() {
     if (error || !data || data.length === 0) return;
 
     grid.className = 'work-grid';
-    grid.innerHTML = data.map(p => `
+    grid.innerHTML = data.map(p => {
+      const title = (lang === 'en' && p.title_en) ? p.title_en : p.title;
+      const catName = p.categories ? ((lang === 'en' && p.categories.name_en) ? p.categories.name_en : p.categories.name) : '';
+      return `
       <a href="pages/project.html?slug=${p.slug}" class="work-card">
         <div class="work-card-media" style="background-image:url('${p.thumbnail_url || ''}')"></div>
         <div class="work-card-meta">
-          <span class="work-card-title">${p.title}</span>
-          <span class="work-card-category">${p.categories ? p.categories.name : ''}</span>
+          <span class="work-card-title">${title}</span>
+          <span class="work-card-category">${catName}</span>
         </div>
-      </a>
-    `).join('');
+      </a>`;
+    }).join('');
 
     if (window.gsap) {
       gsap.utils.toArray('.work-card').forEach((card, i) => {

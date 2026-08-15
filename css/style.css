@@ -48,6 +48,14 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* ---------------- GLASSMORPHISM (depth layer above the 3D background) ---------------- */
+.glass {
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+}
+
 /* ---------------- SPLIT TEXT REVEAL ---------------- */
 .reveal-mask { display: inline-block; overflow: hidden; vertical-align: top; }
 .reveal-word {
@@ -67,14 +75,30 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
 }
 
+/* ---------------- SIGNATURE / LOGO BADGE ---------------- */
+.signature-badge {
+  position: fixed;
+  bottom: 24px;
+  inset-inline-start: 24px;
+  z-index: 90;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+.signature-badge img { width: 100%; height: 100%; object-fit: contain; }
+
 /* ---------------- LANGUAGE TOGGLE ---------------- */
 .lang-toggle {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.05em;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
   background: transparent;
-  color: #fff;
+  color: var(--text);
   border-radius: 999px;
   padding: 8px 14px;
   min-height: 40px;
@@ -102,8 +126,7 @@ html[lang="ar"] .next-project-title { font-family: 'Cairo', 'Space Grotesk', san
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px clamp(20px, 5vw, 64px);
-  mix-blend-mode: difference;
+  padding: 16px clamp(20px, 5vw, 64px);
 }
 
 .logo {
@@ -111,8 +134,12 @@ html[lang="ar"] .next-project-title { font-family: 'Cairo', 'Space Grotesk', san
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 0.02em;
-  color: #fff;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+.logo-mark { height: 28px; width: auto; display: block; }
 
 .nav-links { display: flex; gap: 32px; align-items: center; }
 
@@ -121,7 +148,7 @@ html[lang="ar"] .next-project-title { font-family: 'Cairo', 'Space Grotesk', san
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #fff;
+  color: var(--text);
   position: relative;
   padding: 4px 0;
 }
@@ -141,9 +168,9 @@ html[lang="ar"] .next-project-title { font-family: 'Cairo', 'Space Grotesk', san
 .theme-toggle {
   width: 40px; height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
   background: transparent;
-  color: #fff;
+  color: var(--text);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: transform 0.3s var(--ease-cinematic), background 0.3s;
@@ -308,7 +335,10 @@ section { position: relative; padding: clamp(80px, 14vh, 160px) clamp(20px, 6vw,
   display: block;
   border-radius: 16px;
   overflow: hidden;
-  background: var(--card);
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   transition: transform 0.5s var(--ease-cinematic), box-shadow 0.5s var(--ease-cinematic);
   perspective: 800px;
 }
@@ -364,7 +394,9 @@ section { position: relative; padding: clamp(80px, 14vh, 160px) clamp(20px, 6vw,
   align-items: center;
   border-radius: 999px;
   border: 1px solid rgba(128,128,128,0.3);
-  background: transparent;
+  background: color-mix(in srgb, var(--card) 40%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--text);
   cursor: pointer;
   transition: background 0.3s var(--ease-cinematic), color 0.3s, border-color 0.3s, transform 0.3s var(--ease-cinematic);
@@ -467,7 +499,9 @@ section { position: relative; padding: clamp(80px, 14vh, 160px) clamp(20px, 6vw,
   font-size: 12px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: var(--card);
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(128,128,128,0.25);
 }
 
@@ -500,7 +534,10 @@ section { position: relative; padding: clamp(80px, 14vh, 160px) clamp(20px, 6vw,
 .contact-link {
   font-family: var(--font-mono);
   font-size: 14px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+  background: color-mix(in srgb, var(--card) 40%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 12px 20px;
   border-radius: 999px;
   min-height: 44px;

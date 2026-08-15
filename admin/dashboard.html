@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-logo">ADMIN</div>
+    <div class="sidebar-link active" data-panel="projects">🎬 Projects</div>
+    <div class="sidebar-link" data-panel="categories">🏷️ Categories</div>
+    <div class="sidebar-link" data-panel="content">📝 Content</div>
+    <div class="sidebar-link" data-panel="theme">🎨 Theme</div>
+    <div class="sidebar-link" data-panel="account">🔐 Account</div>
+    <div class="sidebar-link" id="logout-btn">🚪 Logout</div>
+  </aside>
+
+  <main class="admin-main">
+
+    <!-- ================= PROJECTS ================= -->
+    <section class="admin-panel active" id="panel-projects">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">Projects</h1>
+      </div>
+      <div class="data-list" id="projects-list"></div>
+      <button class="fab" id="add-project-btn" aria-label="Add project">+</button>
+    </section>
+
+    <!-- ================= CATEGORIES ================= -->
+    <section class="admin-panel" id="panel-categories">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">Categories</h1>
+      </div>
+      <div class="data-list" id="categories-list"></div>
+      <button class="fab" id="add-category-btn" aria-label="Add category">+</button>
+    </section>
+
+    <!-- ================= CONTENT (site_settings) ================= -->
+    <section class="admin-panel" id="panel-content">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">Content</h1>
+      </div>
+
+      <form id="content-form">
+        <div class="section-block">
+          <h3>Hero</h3>
+          <div class="field"><label>Title</label><input id="hero_title"></div>
+          <div class="field"><label>Subtitle</label><input id="hero_subtitle"></div>
+          <div class="field"><label>Showreel Video URL</label><input id="hero_showreel"></div>
+        </div>
+
+        <div class="section-block">
+          <h3>About</h3>
+          <div class="field"><label>Text</label><textarea id="about_text"></textarea></div>
+        </div>
+
+        <div class="section-block">
+          <h3>Contact</h3>
+          <div class="two-col">
+            <div class="field"><label>Email</label><input id="contact_email"></div>
+            <div class="field"><label>WhatsApp (رقم بالكود الدولي)</label><input id="contact_whatsapp"></div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h3>Social Links</h3>
+          <div class="two-col">
+            <div class="field"><label>Instagram</label><input id="social_instagram"></div>
+            <div class="field"><label>Behance</label><input id="social_behance"></div>
+            <div class="field"><label>YouTube</label><input id="social_youtube"></div>
+            <div class="field"><label>TikTok</label><input id="social_tiktok"></div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h3>SEO</h3>
+          <div class="field"><label>Site Title</label><input id="seo_title"></div>
+          <div class="field"><label>Site Description</label><textarea id="seo_description"></textarea></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Content</button>
+      </form>
+    </section>
+
+    <!-- ================= THEME ================= -->
+    <section class="admin-panel" id="panel-theme">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">Theme Colors</h1>
+      </div>
+      <form id="theme-form">
+        <div class="section-block">
+          <h3>Dark Mode</h3>
+          <div class="two-col">
+            <div class="field"><label>Background</label><input type="color" id="dark_background"></div>
+            <div class="field"><label>Accent</label><input type="color" id="dark_accent"></div>
+            <div class="field"><label>Card</label><input type="color" id="dark_card"></div>
+            <div class="field"><label>Text</label><input type="color" id="dark_text_color"></div>
+          </div>
+        </div>
+        <div class="section-block">
+          <h3>Light Mode</h3>
+          <div class="two-col">
+            <div class="field"><label>Background</label><input type="color" id="light_background"></div>
+            <div class="field"><label>Accent</label><input type="color" id="light_accent"></div>
+            <div class="field"><label>Card</label><input type="color" id="light_card"></div>
+            <div class="field"><label>Text</label><input type="color" id="light_text_color"></div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Theme</button>
+      </form>
+    </section>
+
+    <!-- ================= ACCOUNT ================= -->
+    <section class="admin-panel" id="panel-account">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">Account</h1>
+      </div>
+      <p style="font-family:var(--font-mono); font-size:13px; opacity:0.7; margin-bottom:16px;" id="account-email"></p>
+      <form id="password-form">
+        <div class="field"><label>New Password</label><input type="password" id="new_password" minlength="6" required></div>
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+      <p style="font-family:var(--font-mono); font-size:12px; opacity:0.5; margin-top:24px;">
+        عشان تضيف أدمن جديد: روح لوحة Supabase → Authentication → Add User.
+      </p>
+    </section>
+
+  </main>
+</div>
+
+<!-- ================= PROJECT MODAL ================= -->
+<div class="modal-overlay" id="project-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="project-modal-title">Add Project</div>
+    <form id="project-form">
+      <input type="hidden" id="project_id">
+      <div class="field"><label>Title</label><input id="project_title" required></div>
+      <div class="field"><label>Slug (لينك المشروع بالإنجليزي)</label><input id="project_slug" required></div>
+      <div class="field"><label>Description</label><textarea id="project_description"></textarea></div>
+      <div class="field">
+        <label>Category</label>
+        <select id="project_category_id"></select>
+      </div>
+      <div class="field"><label>Video URL (R2)</label><input id="project_video_url"></div>
+      <div class="field"><label>Thumbnail URL (R2)</label><input id="project_thumbnail_url"></div>
+      <div class="field"><label>Software (افصل بفاصلة)</label><input id="project_software" placeholder="Premiere Pro, After Effects"></div>
+      <div class="two-col">
+        <div class="field"><label>Client</label><input id="project_client"></div>
+        <div class="field"><label>Year</label><input type="number" id="project_year"></div>
+      </div>
+      <div class="field">
+        <label>Featured</label>
+        <div class="chip-toggle-row">
+          <button type="button" class="chip-toggle" id="project_featured_toggle" data-value="false">Featured?</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="project-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="project-delete-btn" hidden>Delete</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= CATEGORY MODAL ================= -->
+<div class="modal-overlay" id="category-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="category-modal-title">Add Category</div>
+    <form id="category-form">
+      <input type="hidden" id="category_id">
+      <div class="field"><label>Name</label><input id="category_name" required></div>
+      <div class="field"><label>Slug</label><input id="category_slug" required></div>
+      <div class="field"><label>Sort Order</label><input type="number" id="category_sort_order" value="0"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="category-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="category-delete-btn" hidden>Delete</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabaseClient.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/projects-admin.js"></script>
+<script src="js/categories-admin.js"></script>
+<script src="js/content-admin.js"></script>
+<script src="js/theme-admin.js"></script>
+<script src="js/account-admin.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

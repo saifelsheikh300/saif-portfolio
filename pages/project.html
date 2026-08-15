@@ -7,32 +7,36 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
+<canvas id="site-background-canvas"></canvas>
 <div class="scroll-progress"></div>
 
 <header class="site-header">
   <a href="../index.html" class="logo">SAIF EL SHEIKH</a>
   <nav class="nav-links">
-    <a href="work.html">Work</a>
-    <a href="../index.html#about">About</a>
-    <a href="../index.html#contact">Contact</a>
+    <a href="work.html" data-i18n="nav_work">Work</a>
+    <a href="../index.html#about" data-i18n="nav_about">About</a>
+    <a href="../index.html#contact" data-i18n="nav_contact">Contact</a>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
-    <span id="theme-icon">☾</span>
-  </button>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button class="lang-toggle" id="lang-toggle">EN</button>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+      <span id="theme-icon">☾</span>
+    </button>
+  </div>
 </header>
 
-<div class="page-header" data-reveal>
+<div class="page-header" data-reveal-up>
   <span class="section-label" id="project-category">—</span>
   <h1 class="page-title" id="project-title">Loading…</h1>
 </div>
 
-<div style="padding: 0 clamp(20px, 6vw, 80px);" data-reveal>
+<div style="padding: 0 clamp(20px, 6vw, 80px);" data-reveal-up>
   <div class="player-wrap" id="player-wrap">
     <video id="project-video" playsinline preload="metadata"></video>
     <div class="player-controls">
@@ -47,43 +51,47 @@
   </div>
 </div>
 
-<div class="project-meta-row" data-reveal>
+<div class="project-meta-row" data-reveal-group>
   <div class="meta-block">
-    <div class="section-label">About Project</div>
+    <div class="section-label" data-i18n="label_about_project">About Project</div>
     <p class="meta-block-value" id="project-description">—</p>
   </div>
 </div>
 
-<div class="project-meta-row" data-reveal>
+<div class="project-meta-row" data-reveal-group>
   <div class="meta-block">
-    <div class="section-label">Software</div>
+    <div class="section-label" data-i18n="label_software">Software</div>
     <div class="software-tags" id="project-software"></div>
   </div>
   <div class="meta-block">
-    <div class="section-label">Client</div>
+    <div class="section-label" data-i18n="label_client">Client</div>
     <div class="meta-block-value" id="project-client">—</div>
   </div>
   <div class="meta-block">
-    <div class="section-label">Year</div>
+    <div class="section-label" data-i18n="label_year">Year</div>
     <div class="meta-block-value" id="project-year">—</div>
   </div>
 </div>
 
 <a href="#" class="next-project-link" id="next-project-link" hidden>
   <div>
-    <div class="next-project-label">Next Project</div>
+    <div class="next-project-label" data-i18n="next_project">Next Project</div>
     <div class="next-project-title" id="next-project-title">—</div>
   </div>
   <span>→</span>
 </a>
 
-<footer class="site-footer">© <span id="year"></span> Saif El Sheikh — All rights reserved.</footer>
+<footer class="site-footer">© <span id="year"></span> Saif El Sheikh — <span data-i18n="footer_rights">All rights reserved.</span></footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabaseClient.js"></script>
 <script src="../js/theme.js"></script>
+<script src="../js/i18n-ui.js"></script>
+<script src="../js/background-scene.js"></script>
+<script src="../js/motion.js"></script>
 <script src="../js/player.js"></script>
 <script src="../js/project.js"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>

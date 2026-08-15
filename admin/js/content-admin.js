@@ -8,6 +8,9 @@ async function loadContentAdmin() {
   const settings = {};
   data.forEach(row => { settings[row.key] = row.value; });
 
+  if (settings.branding) {
+    document.getElementById('branding_logo_url').value = settings.branding.logo_url || '';
+  }
   if (settings.hero) {
     const ar = settings.hero.ar || {}; const en = settings.hero.en || {};
     document.getElementById('hero_title_ar').value = ar.title || '';
@@ -43,6 +46,9 @@ async function saveContent(e) {
   e.preventDefault();
 
   const rows = [
+    { key: 'branding', value: {
+      logo_url: document.getElementById('branding_logo_url').value.trim(),
+    }},
     { key: 'hero', value: {
       ar: {
         title: document.getElementById('hero_title_ar').value.trim(),

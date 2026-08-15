@@ -11,10 +11,11 @@ function initBackgroundScene() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
   const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000000, isMobile ? 0.055 : 0.045);
   const camera = new THREE.PerspectiveCamera(
     50, window.innerWidth / window.innerHeight, 0.1, 100
   );
-  camera.position.z = 6;
+  camera.position.z = 7;
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
@@ -23,16 +24,20 @@ function initBackgroundScene() {
   function getAccent() {
     return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00C6FF';
   }
+  function getBg() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0A0F2C';
+  }
   const accentColor = new THREE.Color(getAccent());
+  scene.fog.color = new THREE.Color(getBg());
 
-  // --- Ribbon ---
+  // --- Ribbon (pushed back in Z so it reads as background, not foreground) ---
   const points = [];
   const segments = 80;
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     const angle = t * Math.PI * 4;
     points.push(new THREE.Vector3(
-      Math.sin(angle) * 1.8, (t - 0.5) * 4.2, Math.cos(angle * 0.7) * 1.2
+      Math.sin(angle) * 2.2, (t - 0.5) * 5, Math.cos(angle * 0.7) * 1.6 - 3.5
     ));
   }
   const curve = new THREE.CatmullRomCurve3(points);
@@ -46,17 +51,17 @@ function initBackgroundScene() {
   wireRibbon.scale.setScalar(1.4);
   scene.add(wireRibbon);
 
-  // --- Ambient grain particles, spread across a tall scroll range ---
+  // --- Ambient grain particles, spread across a real depth range (near to far) ---
   const particleCount = isMobile ? 140 : 320;
   const particleGeo = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   for (let i = 0; i < particleCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 14;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 16 - 2; // deep Z spread, mostly behind camera focus
   }
   particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const particleMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.015, transparent: true, opacity: 0.35 });
+  const particleMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.018, transparent: true, opacity: 0.3, sizeAttenuation: true });
   const particles = new THREE.Points(particleGeo, particleMat);
   scene.add(particles);
 
@@ -127,6 +132,7 @@ function initBackgroundScene() {
   window.__refreshBgSceneColor = () => {
     const c = new THREE.Color(getAccent());
     window.__bgSceneMaterials.forEach(m => m.color.set(c));
+    scene.fog.color = new THREE.Color(getBg());
   };
 }
 

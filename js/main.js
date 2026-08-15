@@ -1,57 +1,7 @@
 // ============================================================
-// Main site logic: theme, Supabase content loading, GSAP motion
+// Home page logic: content loading, timecode, intro sequence
+// (theme + scroll progress/reveals now live in theme.js)
 // ============================================================
-
-gsap.registerPlugin(ScrollTrigger);
-
-/* ---------------- THEME ---------------- */
-function applyTheme(mode) {
-  document.documentElement.setAttribute('data-theme', mode);
-  localStorage.setItem('theme', mode);
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = mode === 'dark' ? '☾' : '☀';
-
-  // Recolor the 3D ribbon to match new accent
-  requestAnimationFrame(() => {
-    const accentHex = getComputedStyle(document.documentElement)
-      .getPropertyValue('--accent').trim();
-    if (window.__heroRibbonMaterials && window.THREE) {
-      const c = new THREE.Color(accentHex);
-      window.__heroRibbonMaterials.forEach(m => m.color.set(c));
-    }
-  });
-}
-
-function initTheme() {
-  const saved = localStorage.getItem('theme');
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initial = saved || (systemPrefersDark ? 'dark' : 'light');
-  applyTheme(initial);
-
-  const toggleBtn = document.getElementById('theme-toggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      applyTheme(current === 'dark' ? 'light' : 'dark');
-    });
-  }
-}
-
-/* ---------------- LOAD DYNAMIC THEME COLORS FROM SUPABASE ---------------- */
-async function loadThemeSettings() {
-  try {
-    const { data, error } = await supabaseClient.from('theme_settings').select('*');
-    if (error || !data) return;
-    const styleTag = document.createElement('style');
-    let css = '';
-    data.forEach(row => {
-      const selector = row.mode === 'dark' ? ':root' : '[data-theme="light"]';
-      css += `${selector} { --bg:${row.background}; --accent:${row.accent}; --card:${row.card}; --text:${row.text_color}; }\n`;
-    });
-    styleTag.textContent = css;
-    document.head.appendChild(styleTag);
-  } catch (e) { /* fall back to CSS defaults silently */ }
-}
 
 /* ---------------- LOAD SITE CONTENT FROM SUPABASE ---------------- */
 async function loadSiteContent() {
@@ -97,7 +47,7 @@ async function loadSiteContent() {
   } catch (e) { /* keep default placeholder content */ }
 }
 
-/* ---------------- LOAD FEATURED PROJECTS (for future Work grid on home) ---------------- */
+/* ---------------- LOAD FEATURED PROJECTS ---------------- */
 async function loadFeaturedProjects() {
   const grid = document.getElementById('featured-grid');
   if (!grid) return;
@@ -111,6 +61,7 @@ async function loadFeaturedProjects() {
       .limit(6);
     if (error || !data || data.length === 0) return;
 
+    grid.className = 'work-grid';
     grid.innerHTML = data.map(p => `
       <a href="pages/project.html?slug=${p.slug}" class="work-card">
         <div class="work-card-media" style="background-image:url('${p.thumbnail_url || ''}')"></div>
@@ -121,13 +72,15 @@ async function loadFeaturedProjects() {
       </a>
     `).join('');
 
-    gsap.utils.toArray('.work-card').forEach((card, i) => {
-      gsap.from(card, {
-        y: 60, opacity: 0, duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: card, start: 'top 88%' },
-        delay: i * 0.06,
+    if (window.gsap) {
+      gsap.utils.toArray('.work-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 60, opacity: 0, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: card, start: 'top 88%' },
+          delay: i * 0.06,
+        });
       });
-    });
+    }
   } catch (e) { /* leave grid empty gracefully */ }
 }
 
@@ -148,17 +101,9 @@ function startTimecode() {
   requestAnimationFrame(frame);
 }
 
-/* ---------------- GLOBAL SCROLL PROGRESS BAR ---------------- */
-function initScrollProgress() {
-  gsap.to('.scroll-progress', {
-    width: '100%',
-    ease: 'none',
-    scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
-  });
-}
-
 /* ---------------- INTRO SEQUENCE (letterbox + hero reveal) ---------------- */
 function playIntroSequence() {
+  if (!window.gsap) return;
   const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
 
   tl.to('.letterbox-top', { height: '0vh', duration: 1.1, ease: 'power4.inOut' }, 0.15)
@@ -168,39 +113,13 @@ function playIntroSequence() {
       y: '0%', duration: 1, stagger: 0.08, ease: 'power4.out',
     }, 0.7)
     .to('.hero-subtitle', { opacity: 1, duration: 0.7 }, '-=0.5')
-    .to('.hero-scroll-cue', { opacity: 1, duration: 0.6 }, '-=0.3')
-    .to('.scrub-line::after', {}, 0); // placeholder anchor
-
-  // Animate the scrub line fill separately (pseudo-el workaround via CSS var)
-  gsap.to('.scrub-line', {
-    '--fill': '100%',
-    duration: 2,
-    delay: 1.6,
-    ease: 'power2.inOut',
-    onUpdate: function () {
-      const val = this.targets()[0].style.getPropertyValue('--fill');
-    },
-  });
-}
-
-/* ---------------- SCROLL REVEALS FOR SECTIONS ---------------- */
-function initScrollReveals() {
-  gsap.utils.toArray('[data-reveal]').forEach((el) => {
-    gsap.from(el, {
-      y: 50, opacity: 0, duration: 1, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 85%' },
-    });
-  });
+    .to('.hero-scroll-cue', { opacity: 1, duration: 0.6 }, '-=0.3');
 }
 
 /* ---------------- BOOT ---------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  loadThemeSettings();
   loadSiteContent();
   loadFeaturedProjects();
   startTimecode();
-  initScrollProgress();
-  initScrollReveals();
   playIntroSequence();
 });

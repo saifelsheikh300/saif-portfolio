@@ -49,15 +49,24 @@
 
       <form id="content-form">
         <div class="section-block">
-          <h3>Hero</h3>
-          <div class="field"><label>Title</label><input id="hero_title"></div>
-          <div class="field"><label>Subtitle</label><input id="hero_subtitle"></div>
+          <h3>Hero — 🇪🇬 عربي</h3>
+          <div class="field"><label>Title</label><input id="hero_title_ar"></div>
+          <div class="field"><label>Subtitle</label><input id="hero_subtitle_ar"></div>
+        </div>
+        <div class="section-block">
+          <h3>Hero — 🇬🇧 English</h3>
+          <div class="field"><label>Title</label><input id="hero_title_en"></div>
+          <div class="field"><label>Subtitle</label><input id="hero_subtitle_en"></div>
           <div class="field"><label>Showreel Video URL</label><input id="hero_showreel"></div>
         </div>
 
         <div class="section-block">
-          <h3>About</h3>
-          <div class="field"><label>Text</label><textarea id="about_text"></textarea></div>
+          <h3>About — 🇪🇬 عربي</h3>
+          <div class="field"><label>Text</label><textarea id="about_text_ar"></textarea></div>
+        </div>
+        <div class="section-block">
+          <h3>About — 🇬🇧 English</h3>
+          <div class="field"><label>Text</label><textarea id="about_text_en"></textarea></div>
         </div>
 
         <div class="section-block">
@@ -79,9 +88,14 @@
         </div>
 
         <div class="section-block">
-          <h3>SEO</h3>
-          <div class="field"><label>Site Title</label><input id="seo_title"></div>
-          <div class="field"><label>Site Description</label><textarea id="seo_description"></textarea></div>
+          <h3>SEO — 🇪🇬 عربي</h3>
+          <div class="field"><label>Site Title</label><input id="seo_title_ar"></div>
+          <div class="field"><label>Site Description</label><textarea id="seo_description_ar"></textarea></div>
+        </div>
+        <div class="section-block">
+          <h3>SEO — 🇬🇧 English</h3>
+          <div class="field"><label>Site Title</label><input id="seo_title_en"></div>
+          <div class="field"><label>Site Description</label><textarea id="seo_description_en"></textarea></div>
         </div>
 
         <button type="submit" class="btn btn-primary">Save Content</button>
@@ -140,9 +154,11 @@
     <div class="modal-title" id="project-modal-title">Add Project</div>
     <form id="project-form">
       <input type="hidden" id="project_id">
-      <div class="field"><label>Title</label><input id="project_title" required></div>
+      <div class="field"><label>Title (عربي)</label><input id="project_title" required></div>
+      <div class="field"><label>Title (English)</label><input id="project_title_en"></div>
       <div class="field"><label>Slug (لينك المشروع بالإنجليزي)</label><input id="project_slug" required></div>
-      <div class="field"><label>Description</label><textarea id="project_description"></textarea></div>
+      <div class="field"><label>Description (عربي)</label><textarea id="project_description"></textarea></div>
+      <div class="field"><label>Description (English)</label><textarea id="project_description_en"></textarea></div>
       <div class="field">
         <label>Category</label>
         <select id="project_category_id"></select>
@@ -175,7 +191,8 @@
     <div class="modal-title" id="category-modal-title">Add Category</div>
     <form id="category-form">
       <input type="hidden" id="category_id">
-      <div class="field"><label>Name</label><input id="category_name" required></div>
+      <div class="field"><label>Name (عربي)</label><input id="category_name" required></div>
+      <div class="field"><label>Name (English)</label><input id="category_name_en"></div>
       <div class="field"><label>Slug</label><input id="category_slug" required></div>
       <div class="field"><label>Sort Order</label><input type="number" id="category_sort_order" value="0"></div>
       <div class="modal-actions">

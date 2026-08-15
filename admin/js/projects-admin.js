@@ -51,8 +51,10 @@ function openProjectModal(project) {
     document.getElementById('project-modal-title').textContent = 'Edit Project';
     document.getElementById('project_id').value = project.id;
     document.getElementById('project_title').value = project.title || '';
+    document.getElementById('project_title_en').value = project.title_en || '';
     document.getElementById('project_slug').value = project.slug || '';
     document.getElementById('project_description').value = project.description || '';
+    document.getElementById('project_description_en').value = project.description_en || '';
     document.getElementById('project_category_id').value = project.category_id || '';
     document.getElementById('project_video_url').value = project.video_url || '';
     document.getElementById('project_thumbnail_url').value = project.thumbnail_url || '';
@@ -78,8 +80,10 @@ async function saveProject(e) {
   const id = document.getElementById('project_id').value;
   const payload = {
     title: document.getElementById('project_title').value.trim(),
+    title_en: document.getElementById('project_title_en').value.trim(),
     slug: document.getElementById('project_slug').value.trim(),
     description: document.getElementById('project_description').value.trim(),
+    description_en: document.getElementById('project_description_en').value.trim(),
     category_id: document.getElementById('project_category_id').value || null,
     video_url: document.getElementById('project_video_url').value.trim(),
     thumbnail_url: document.getElementById('project_thumbnail_url').value.trim(),

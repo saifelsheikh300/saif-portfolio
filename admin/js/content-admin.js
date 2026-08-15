@@ -1,5 +1,5 @@
 // ============================================================
-// Content (site_settings) admin
+// Content (site_settings) admin — bilingual AR/EN
 // ============================================================
 
 async function loadContentAdmin() {
@@ -9,12 +9,16 @@ async function loadContentAdmin() {
   data.forEach(row => { settings[row.key] = row.value; });
 
   if (settings.hero) {
-    document.getElementById('hero_title').value = settings.hero.title || '';
-    document.getElementById('hero_subtitle').value = settings.hero.subtitle || '';
+    const ar = settings.hero.ar || {}; const en = settings.hero.en || {};
+    document.getElementById('hero_title_ar').value = ar.title || '';
+    document.getElementById('hero_subtitle_ar').value = ar.subtitle || '';
+    document.getElementById('hero_title_en').value = en.title || '';
+    document.getElementById('hero_subtitle_en').value = en.subtitle || '';
     document.getElementById('hero_showreel').value = settings.hero.showreel_video_url || '';
   }
   if (settings.about) {
-    document.getElementById('about_text').value = settings.about.text || '';
+    document.getElementById('about_text_ar').value = (settings.about.ar && settings.about.ar.text) || '';
+    document.getElementById('about_text_en').value = (settings.about.en && settings.about.en.text) || '';
   }
   if (settings.contact) {
     document.getElementById('contact_email').value = settings.contact.email || '';
@@ -27,8 +31,11 @@ async function loadContentAdmin() {
     document.getElementById('social_tiktok').value = settings.social_links.tiktok || '';
   }
   if (settings.seo) {
-    document.getElementById('seo_title').value = settings.seo.title || '';
-    document.getElementById('seo_description').value = settings.seo.description || '';
+    const ar = settings.seo.ar || {}; const en = settings.seo.en || {};
+    document.getElementById('seo_title_ar').value = ar.title || '';
+    document.getElementById('seo_description_ar').value = ar.description || '';
+    document.getElementById('seo_title_en').value = en.title || '';
+    document.getElementById('seo_description_en').value = en.description || '';
   }
 }
 
@@ -37,12 +44,19 @@ async function saveContent(e) {
 
   const rows = [
     { key: 'hero', value: {
-      title: document.getElementById('hero_title').value.trim(),
-      subtitle: document.getElementById('hero_subtitle').value.trim(),
+      ar: {
+        title: document.getElementById('hero_title_ar').value.trim(),
+        subtitle: document.getElementById('hero_subtitle_ar').value.trim(),
+      },
+      en: {
+        title: document.getElementById('hero_title_en').value.trim(),
+        subtitle: document.getElementById('hero_subtitle_en').value.trim(),
+      },
       showreel_video_url: document.getElementById('hero_showreel').value.trim(),
     }},
     { key: 'about', value: {
-      text: document.getElementById('about_text').value.trim(),
+      ar: { text: document.getElementById('about_text_ar').value.trim() },
+      en: { text: document.getElementById('about_text_en').value.trim() },
     }},
     { key: 'contact', value: {
       email: document.getElementById('contact_email').value.trim(),
@@ -55,8 +69,14 @@ async function saveContent(e) {
       tiktok: document.getElementById('social_tiktok').value.trim(),
     }},
     { key: 'seo', value: {
-      title: document.getElementById('seo_title').value.trim(),
-      description: document.getElementById('seo_description').value.trim(),
+      ar: {
+        title: document.getElementById('seo_title_ar').value.trim(),
+        description: document.getElementById('seo_description_ar').value.trim(),
+      },
+      en: {
+        title: document.getElementById('seo_title_en').value.trim(),
+        description: document.getElementById('seo_description_en').value.trim(),
+      },
     }},
   ];
 

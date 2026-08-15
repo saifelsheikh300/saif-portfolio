@@ -8,11 +8,14 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+<!-- Persistent, interactive, site-wide 3D background -->
+<canvas id="site-background-canvas"></canvas>
 
 <!-- Letterbox intro bars -->
 <div class="letterbox-bar letterbox-top"></div>
@@ -24,20 +27,22 @@
 <header class="site-header">
   <a href="#" class="logo">SAIF EL SHEIKH</a>
   <nav class="nav-links">
-    <a href="pages/work.html">Work</a>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
+    <a href="pages/work.html" data-i18n="nav_work">Work</a>
+    <a href="#about" data-i18n="nav_about">About</a>
+    <a href="#contact" data-i18n="nav_contact">Contact</a>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
-    <span id="theme-icon">☾</span>
-  </button>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button class="lang-toggle" id="lang-toggle">EN</button>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+      <span id="theme-icon">☾</span>
+    </button>
+  </div>
 </header>
 
 <!-- ================= HERO ================= -->
 <section class="hero">
-  <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
-    <div class="eyebrow"><span class="rec-dot"></span> NOW EDITING</div>
+    <div class="eyebrow" data-i18n="eyebrow"><span class="rec-dot"></span> NOW EDITING</div>
     <h1 class="hero-title">
       <span class="line"><span id="hero-title-text">Saif El Sheikh</span></span>
     </h1>
@@ -50,22 +55,22 @@
 </section>
 
 <!-- ================= SELECTED WORK ================= -->
-<section id="work" data-reveal>
-  <div class="section-label">// Selected Work</div>
+<section id="work">
+  <div class="section-label" data-i18n="label_work" data-split-reveal>// Selected Work</div>
   <div class="work-grid" id="featured-grid"></div>
 </section>
 
 <!-- ================= ABOUT ================= -->
-<section id="about" data-reveal>
-  <div class="section-label">// About</div>
-  <p class="about-text" id="about-text">اكتب هنا نبذة عنك — هتتعدل من الأدمن بانل.</p>
+<section id="about">
+  <div class="section-label" data-i18n="label_about" data-split-reveal>// About</div>
+  <p class="about-text" id="about-text" data-reveal-up>اكتب هنا نبذة عنك — هتتعدل من الأدمن بانل.</p>
 </section>
 
 <!-- ================= CONTACT ================= -->
-<section id="contact" class="contact-section" data-reveal>
-  <div class="section-label">// Get in Touch</div>
-  <h2 class="contact-title">Let's create<br>something together.</h2>
-  <div class="contact-links">
+<section id="contact" class="contact-section">
+  <div class="section-label" data-i18n="label_contact" data-split-reveal>// Get in Touch</div>
+  <h2 class="contact-title" data-i18n="contact_title" data-split-reveal>Let's create something together.</h2>
+  <div class="contact-links" data-reveal-group>
     <a id="contact-email-link" class="contact-link" href="#" hidden>Email</a>
     <a id="contact-whatsapp-link" class="contact-link" href="#" target="_blank" hidden>WhatsApp</a>
     <a data-social="instagram" class="contact-link" href="#" target="_blank" hidden>Instagram</a>
@@ -75,7 +80,7 @@
   </div>
 </section>
 
-<footer class="site-footer">© <span id="year"></span> Saif El Sheikh — All rights reserved.</footer>
+<footer class="site-footer">© <span id="year"></span> Saif El Sheikh — <span data-i18n="footer_rights">All rights reserved.</span></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -83,7 +88,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/theme.js"></script>
-<script src="js/three-hero.js"></script>
+<script src="js/i18n-ui.js"></script>
+<script src="js/background-scene.js"></script>
+<script src="js/motion.js"></script>
 <script src="js/main.js"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>

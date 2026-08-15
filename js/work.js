@@ -1,5 +1,5 @@
 // ============================================================
-// Work page: load categories + all projects, handle filtering
+// Work page: load categories + all projects (bilingual), filter
 // ============================================================
 
 let allProjects = [];
@@ -7,6 +7,7 @@ let allProjects = [];
 function renderProjects(list) {
   const grid = document.getElementById('work-grid-full');
   const emptyState = document.getElementById('empty-state');
+  const lang = currentLang();
 
   if (!list.length) {
     grid.innerHTML = '';
@@ -15,15 +16,18 @@ function renderProjects(list) {
   }
   emptyState.hidden = true;
 
-  grid.innerHTML = list.map(p => `
+  grid.innerHTML = list.map(p => {
+    const title = (lang === 'en' && p.title_en) ? p.title_en : p.title;
+    const catName = p.categories ? ((lang === 'en' && p.categories.name_en) ? p.categories.name_en : p.categories.name) : '';
+    return `
     <a href="project.html?slug=${p.slug}" class="work-card">
       <div class="work-card-media" style="background-image:url('${p.thumbnail_url || ''}')"></div>
       <div class="work-card-meta">
-        <span class="work-card-title">${p.title}</span>
-        <span class="work-card-category">${p.categories ? p.categories.name : ''}</span>
+        <span class="work-card-title">${title}</span>
+        <span class="work-card-category">${catName}</span>
       </div>
-    </a>
-  `).join('');
+    </a>`;
+  }).join('');
 
   if (window.gsap) {
     gsap.utils.toArray('.work-card').forEach((card, i) => {
@@ -37,6 +41,7 @@ function renderProjects(list) {
 
 async function loadCategories() {
   const bar = document.getElementById('filter-bar');
+  const lang = currentLang();
   try {
     const { data, error } = await supabaseClient
       .from('categories')
@@ -48,7 +53,7 @@ async function loadCategories() {
       const btn = document.createElement('button');
       btn.className = 'filter-chip';
       btn.dataset.slug = cat.slug;
-      btn.textContent = cat.name;
+      btn.textContent = (lang === 'en' && cat.name_en) ? cat.name_en : cat.name;
       bar.appendChild(btn);
     });
 
@@ -72,7 +77,7 @@ async function loadAllProjects() {
   try {
     const { data, error } = await supabaseClient
       .from('projects')
-      .select('*, categories(name, slug)')
+      .select('*, categories(name, name_en, slug)')
       .eq('published', true)
       .order('sort_order', { ascending: true });
     if (error || !data) return;

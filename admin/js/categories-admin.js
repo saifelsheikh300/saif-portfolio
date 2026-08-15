@@ -37,6 +37,7 @@ function openCategoryModal(category) {
     document.getElementById('category-modal-title').textContent = 'Edit Category';
     document.getElementById('category_id').value = category.id;
     document.getElementById('category_name').value = category.name;
+    document.getElementById('category_name_en').value = category.name_en || '';
     document.getElementById('category_slug').value = category.slug;
     document.getElementById('category_sort_order').value = category.sort_order;
     document.getElementById('category-delete-btn').hidden = false;
@@ -54,6 +55,7 @@ async function saveCategory(e) {
   const id = document.getElementById('category_id').value;
   const payload = {
     name: document.getElementById('category_name').value.trim(),
+    name_en: document.getElementById('category_name_en').value.trim(),
     slug: document.getElementById('category_slug').value.trim(),
     sort_order: parseInt(document.getElementById('category_sort_order').value) || 0,
   };

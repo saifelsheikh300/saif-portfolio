@@ -62,8 +62,23 @@ function initRiseReveals() {
   });
 }
 
+function initGlowOrbDrift() {
+  if (!window.gsap) return;
+  gsap.utils.toArray('.glow-orb').forEach((orb, i) => {
+    gsap.to(orb, {
+      x: (i % 2 === 0 ? 1 : -1) * (40 + i * 15),
+      y: (i % 2 === 0 ? -1 : 1) * (30 + i * 10),
+      duration: 14 + i * 4,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
   initTextReveals();
   initRiseReveals();
+  initGlowOrbDrift();
 });

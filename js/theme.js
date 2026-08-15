@@ -3,6 +3,36 @@
 // Used on every page.
 // ============================================================
 
+// ============================================================
+// Shared theme logic (dark/light) + language (AR/EN) + scroll
+// progress bar. Used on every page.
+// ============================================================
+
+/* ---------------- LANGUAGE (AR / EN) ---------------- */
+function currentLang() {
+  return localStorage.getItem('lang') || 'ar';
+}
+
+function applyLang(lang, opts) {
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  localStorage.setItem('lang', lang);
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = lang === 'ar' ? 'EN' : 'AR';
+  if (opts && opts.reload) { window.location.reload(); return; }
+  document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+}
+
+function initLang() {
+  applyLang(currentLang());
+  const btn = document.getElementById('lang-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      applyLang(currentLang() === 'ar' ? 'en' : 'ar', { reload: true });
+    });
+  }
+}
+
 function applyTheme(mode) {
   document.documentElement.setAttribute('data-theme', mode);
   localStorage.setItem('theme', mode);
@@ -10,12 +40,7 @@ function applyTheme(mode) {
   if (icon) icon.textContent = mode === 'dark' ? '☾' : '☀';
 
   requestAnimationFrame(() => {
-    if (window.__heroRibbonMaterials && window.THREE) {
-      const accentHex = getComputedStyle(document.documentElement)
-        .getPropertyValue('--accent').trim();
-      const c = new THREE.Color(accentHex);
-      window.__heroRibbonMaterials.forEach(m => m.color.set(c));
-    }
+    if (window.__refreshBgSceneColor) window.__refreshBgSceneColor();
   });
 }
 
@@ -70,6 +95,7 @@ function initScrollReveals() {
 
 document.addEventListener('DOMContentLoaded', () => {
   if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+  initLang();
   initTheme();
   loadThemeSettings();
   initScrollProgress();

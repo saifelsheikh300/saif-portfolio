@@ -33,6 +33,20 @@ function initLang() {
   }
 }
 
+async function loadBranding() {
+  try {
+    const { data, error } = await supabaseClient.from('site_settings').select('*').eq('key', 'branding').single();
+    if (error || !data || !data.value || !data.value.logo_url) return;
+
+    const logoImg = document.getElementById('logo-mark');
+    if (logoImg) { logoImg.src = data.value.logo_url; logoImg.hidden = false; }
+
+    const badge = document.getElementById('signature-badge');
+    const badgeImg = document.getElementById('signature-badge-img');
+    if (badge && badgeImg) { badgeImg.src = data.value.logo_url; badge.hidden = false; }
+  } catch (e) { /* keep text-only branding */ }
+}
+
 function applyTheme(mode) {
   document.documentElement.setAttribute('data-theme', mode);
   localStorage.setItem('theme', mode);
@@ -98,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLang();
   initTheme();
   loadThemeSettings();
+  loadBranding();
   initScrollProgress();
   initScrollReveals();
 });

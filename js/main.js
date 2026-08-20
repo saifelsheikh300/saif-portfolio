@@ -665,6 +665,19 @@ function parseVideoInfo(url) {
     };
   }
 
+  // 4. Google Drive (Direct HTML5 Stream + Auto Thumbnail)
+  const gdriveMatch = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
+  if (gdriveMatch) {
+    const id = gdriveMatch[1];
+    return {
+      type: 'direct',
+      id: id,
+      videoUrl: `https://drive.google.com/uc?export=download&id=${id}`,
+      embedUrl: `https://drive.google.com/file/d/${id}/preview`,
+      thumbUrl: `https://drive.google.com/thumbnail?id=${id}&sz=w1280`
+    };
+  }
+
   // 4. Direct video files (Cloudflare R2, MP4, WebM, MOV)
   if (u.match(/\.(mp4|webm|mov|m4v|ogg)(\?.*)?$/i) || u.includes('r2.dev') || u.includes('r2.cloudflarestorage.com')) {
     return {
@@ -702,6 +715,15 @@ function openModal(video) {
     if (modalVideo) {
       modalVideo.style.display = 'block';
       modalVideo.src = info.videoUrl;
+      modalVideo.onerror = () => {
+        if (info.embedUrl) {
+          modalVideo.style.display = 'none';
+          if (iframe) {
+            iframe.style.display = 'block';
+            iframe.src = info.embedUrl;
+          }
+        }
+      };
       modalVideo.load();
       modalVideo.play().catch(() => {});
     }

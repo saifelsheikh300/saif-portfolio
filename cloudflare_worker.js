@@ -14,7 +14,8 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Filename, Authorization',
+      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Max-Age': '86400',
     };
 
     if (request.method === 'OPTIONS') {
@@ -22,10 +23,22 @@ export default {
     }
 
     if (request.method !== 'POST' && request.method !== 'PUT') {
-      return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+      return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), { 
+        status: 405, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
     }
 
     try {
+      if (!env.MY_BUCKET) {
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'الـ R2 Bucket غير مربوط بالـ Worker. يرجى إضافة R2 Bucket Binding باسم MY_BUCKET في إعدادات الـ Worker' 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
       const url = new URL(request.url);
       const headerFilename = request.headers.get('X-Filename');
       const queryFilename = url.searchParams.get('filename');

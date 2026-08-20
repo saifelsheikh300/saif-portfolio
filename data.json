@@ -1,0 +1,59 @@
+{
+  "categories": ["الكل", "عقاري", "ريلز", "جيم", "يوتيوب", "إعلانات"],
+  "videos": [
+    {
+      "id": 1,
+      "title_ar": "فيديو عقاري احترافي",
+      "title_en": "Professional Real Estate Video",
+      "category": "عقاري",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 1
+    },
+    {
+      "id": 2,
+      "title_ar": "ريلز إبداعي",
+      "title_en": "Creative Reels",
+      "category": "ريلز",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 2
+    },
+    {
+      "id": 3,
+      "title_ar": "فيديو جيم موتيفيشن",
+      "title_en": "Gym Motivation Video",
+      "category": "جيم",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 3
+    },
+    {
+      "id": 4,
+      "title_ar": "فيديو يوتيوب كامل",
+      "title_en": "Full YouTube Video",
+      "category": "يوتيوب",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 4
+    },
+    {
+      "id": 5,
+      "title_ar": "فيديو إعلاني",
+      "title_en": "Advertisement Video",
+      "category": "إعلانات",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 5
+    },
+    {
+      "id": 6,
+      "title_ar": "مونتاج ريلز سريع",
+      "title_en": "Fast Reels Edit",
+      "category": "ريلز",
+      "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtube_id": "dQw4w9WgXcQ",
+      "order": 6
+    }
+  ]
+}

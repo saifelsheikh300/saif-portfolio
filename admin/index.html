@@ -1,36 +1,1198 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Admin Login — Saif El Sheikh</title>
-<meta name="robots" content="noindex, nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | Admin Dashboard</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&display=swap" rel="stylesheet">
+  <style>
+    .admin-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .yt-preview-img { width: 220px; height: 124px; border-radius: 8px; object-fit: cover; margin-top: 8px; display: none; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--card-border); }
+    .toggle-row:last-child { border-bottom: none; }
+    .photo-preview-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin-bottom: 16px; display: none; border: 2px solid var(--accent); }
+    .color-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .color-input { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--card-border); cursor: pointer; padding: 4px; background: none; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-online { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .status-offline { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+    .action-btn-group { display: flex; gap: 8px; align-items: center; }
+    @media (max-width: 768px) {
+      .admin-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="login-screen">
-  <form class="login-card" id="login-form">
-    <div class="login-title">Admin Panel</div>
-    <div class="login-sub">SAIF EL SHEIKH PORTFOLIO</div>
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="particles-container"></div>
+</div>
 
-    <div class="field">
-      <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="username">
+<!-- LOGIN SCREEN -->
+<div class="admin-login" id="loginScreen">
+  <div class="admin-login-card">
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:3rem;">🔐</div>
     </div>
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" required autocomplete="current-password">
+    <h2 class="admin-login-title">لوحة التحكم</h2>
+    <p class="admin-login-sub">تسجيل الدخول لإدارة الموقع والسحابة</p>
+    
+    <div id="loginError" style="display:none; background:rgba(255,80,80,0.15); border:1px solid rgba(255,80,80,0.3); color:#ff5050; padding:10px 14px; border-radius:8px; font-size:0.88rem; margin-bottom:16px;">
+      ❌ خطأ في البريد الإلكتروني أو كلمة المرور
+    </div>
+    
+    <form id="adminLoginForm" onsubmit="adminLogin(event)">
+      <div class="form-group">
+        <label class="admin-label">البريد الإلكتروني / اسم المستخدم</label>
+        <input type="text" id="adminEmail" class="admin-input" placeholder="admin@example.com أو saif" required>
+      </div>
+      <div class="form-group">
+        <label class="admin-label">كلمة المرور</label>
+        <input type="password" id="adminPass" class="admin-input" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="admin-btn" id="loginSubmitBtn" style="width:100%; padding:14px; justify-content:center;">
+        <span>دخول →</span>
+      </button>
+    </form>
+    
+    <div style="margin-top: 20px; text-align: center;">
+      <span id="connStatus" class="status-badge status-offline">⚡ جاري فحص الاتصال بـ Supabase...</span>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="admin-layout" id="dashboard" style="display:none;">
+
+  <!-- NAVBAR -->
+  <nav class="navbar" style="z-index:1001;">
+    <div class="nav-logo ar" style="font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+      <span>⚙️ لوحة تحكم سيف الشيخ</span>
+      <span id="topConnStatus" class="status-badge status-online" style="font-size:0.7rem;">Supabase متصل</span>
+    </div>
+    <div style="margin-right:auto; display:flex; gap:8px; align-items:center;">
+      <a href="../index.html" target="_blank" class="nav-btn" title="View Site" style="font-size:0.78rem; width:auto; padding:0 12px; gap:6px;">
+        🌐 <span class="ar">عرض الموقع</span>
+      </a>
+      <button class="nav-btn" id="themeToggle" title="Toggle theme">☀️</button>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <div class="admin-sidebar">
+    <div class="admin-nav-item active" data-section="profile" onclick="adminNav('profile')">
+      <span>🖼️</span>
+      <span class="ar">الملف الشخصي والنصوص</span>
+    </div>
+    <div class="admin-nav-item" data-section="portfolio" onclick="adminNav('portfolio')">
+      <span>🎬</span>
+      <span class="ar">معرض الفيديوهات والأعمال</span>
+    </div>
+    <div class="admin-nav-item" data-section="categories" onclick="adminNav('categories')">
+      <span>🏷️</span>
+      <span class="ar">إدارة الأقسام والتصنيفات</span>
+    </div>
+    <div class="admin-nav-item" data-section="design" onclick="adminNav('design')">
+      <span>🎨</span>
+      <span class="ar">إعدادات التصميم والألوان</span>
+    </div>
+    <div class="admin-nav-item" data-section="socials" onclick="adminNav('socials')">
+      <span>🔗</span>
+      <span class="ar">روابط السوشيال ميديا</span>
+    </div>
+    <div class="admin-nav-item" data-section="security" onclick="adminNav('security')">
+      <span>🔐</span>
+      <span class="ar">الحساب والأمان</span>
+    </div>
+    <div style="padding: 16px 24px; margin-top:auto;">
+      <button class="admin-btn admin-btn-danger" onclick="adminLogout()" style="width:100%; justify-content:center;">
+        خروج 🚪
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="admin-main">
+
+    <!-- 1. PROFILE SECTION -->
+    <div class="admin-section active" id="section-profile">
+      <h2 class="admin-section-title">🖼️ الملف الشخصي والنصوص الرئيسية</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">صورة البروفايل</h3>
+        <img id="photoPreview" class="photo-preview-img" alt="Profile preview">
+        <div>
+          <input type="file" accept="image/*" onchange="handlePhotoUpload(event)" style="display:none;" id="photoInput">
+          <button class="admin-btn" onclick="document.getElementById('photoInput').click()">
+            📷 اختيار صورة جديدة ورفعها
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">البيانات التعريفية</h3>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">الاسم (عربي)</label>
+            <input id="pNameAr" class="admin-input" type="text" placeholder="سيف الشيخ">
+          </div>
+          <div>
+            <label class="admin-label">الاسم (إنجليزي)</label>
+            <input id="pNameEn" class="admin-input" type="text" placeholder="Saif El Sheikh">
+          </div>
+          <div>
+            <label class="admin-label">المسمى الوظيفي (عربي)</label>
+            <input id="pTitleAr" class="admin-input" type="text" placeholder="فيديو إيديتور · موشن ديزاينر">
+          </div>
+          <div>
+            <label class="admin-label">المسمى الوظيفي (إنجليزي)</label>
+            <input id="pTitleEn" class="admin-input" type="text" placeholder="Video Editor · Motion Designer">
+          </div>
+          <div>
+            <label class="admin-label">سنة الميلاد</label>
+            <input id="pDob" class="admin-input" type="text" placeholder="2009">
+          </div>
+          <div>
+            <label class="admin-label">رقم واتساب (بدون +)</label>
+            <input id="pWhatsapp" class="admin-input" type="text" placeholder="201125655690">
+          </div>
+        </div>
+        <div>
+          <label class="admin-label">البريد الإلكتروني للتواصل</label>
+          <input id="pEmail" class="admin-input" type="email" placeholder="saif@example.com">
+        </div>
+        <div>
+          <label class="admin-label">النبذة التعريفية (عربي)</label>
+          <textarea id="pBioAr" class="admin-input" rows="4" style="height:auto; resize:vertical;" placeholder="اكتب النبذة بالعربي..."></textarea>
+        </div>
+        <div>
+          <label class="admin-label">النبذة التعريفية (إنجليزي)</label>
+          <textarea id="pBioEn" class="admin-input" rows="4" style="height:auto; resize:vertical;" placeholder="Write bio in English..."></textarea>
+        </div>
+        <button class="admin-btn" id="saveProfileBtn" onclick="saveProfileCloud()">💾 حفظ في السحابة</button>
+      </div>
     </div>
 
-    <button type="submit" class="btn btn-primary" id="login-btn">Login</button>
-    <div class="error-msg" id="login-error"></div>
-  </form>
+    <!-- 2. PORTFOLIO VIDEOS SECTION -->
+    <div class="admin-section" id="section-portfolio">
+      <h2 class="admin-section-title">🎬 إدارة الفيديوهات والأعمال</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">➕ إضافة فيديو جديد</h3>
+        <div>
+          <label class="admin-label">رابط الفيديو (Cloudflare Stream, Cloudflare R2 / MP4, YouTube, Vimeo)</label>
+          <input id="newVideoUrl" class="admin-input" type="url" placeholder="https://iframe.videodelivery.net/... أو https://.../video.mp4 أو YouTube" oninput="previewVideoAdmin()">
+          <img id="ytPreview" class="yt-preview-img" alt="Video preview">
+        </div>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">صورة الغلاف (Thumbnail URL - اختياري)</label>
+            <input id="newVideoThumbUrl" class="admin-input" type="url" placeholder="تلقائي لليوتيوب وكلاود فلير أو ضع رابط صورة">
+          </div>
+          <div>
+            <label class="admin-label">القسم / التصنيف</label>
+            <select id="newVideoCategorySelect" class="admin-input">
+              <option value="">جاري تحميل الأقسام...</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">العنوان (عربي)</label>
+            <input id="newVideoTitleAr" class="admin-input" type="text" placeholder="عنوان الفيديو بالعربي">
+          </div>
+          <div>
+            <label class="admin-label">العنوان (إنجليزي)</label>
+            <input id="newVideoTitleEn" class="admin-input" type="text" placeholder="Video title in English">
+          </div>
+        </div>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">القسم / التصنيف</label>
+            <select id="newVideoCategorySelect" class="admin-input">
+              <option value="">جاري تحميل الأقسام...</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">البرامج المستخدمة (مفصولة بفواصل)</label>
+            <input id="newVideoSoftware" class="admin-input" type="text" placeholder="Premiere Pro, After Effects">
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
+            <input type="checkbox" id="newVideoFeatured" style="width:18px; height:18px; accent-color:var(--accent);">
+            <span>⭐ فيديو مميز في الصفحة الرئيسية (Featured)</span>
+          </label>
+        </div>
+        <button class="admin-btn" id="addVideoBtn" onclick="addVideoCloud()">➕ إضافة الفيديو إلى Supabase</button>
+      </div>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">قائمة الأعمال الحالية</h3>
+        <div id="adminVideoList">
+          <p style="color:var(--text-muted);">جاري تحميل الفيديوهات...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. CATEGORIES SECTION -->
+    <div class="admin-section" id="section-categories">
+      <h2 class="admin-section-title">🏷️ إدارة الأقسام والتصنيفات</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">➕ إضافة قسم جديد</h3>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">اسم القسم (عربي)</label>
+            <input id="newCatNameAr" class="admin-input" type="text" placeholder="مثال: موشن جرافيك">
+          </div>
+          <div>
+            <label class="admin-label">اسم القسم (إنجليزي)</label>
+            <input id="newCatNameEn" class="admin-input" type="text" placeholder="e.g. Motion Graphics">
+          </div>
+        </div>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">الاسم اللطيف (Slug بالإنجليزية)</label>
+            <input id="newCatSlug" class="admin-input" type="text" placeholder="e.g. motion-graphics">
+          </div>
+          <div>
+            <label class="admin-label">الترتيب</label>
+            <input id="newCatOrder" class="admin-input" type="number" value="1">
+          </div>
+        </div>
+        <button class="admin-btn" onclick="addCategoryCloud()">➕ إضافة التصنيف</button>
+      </div>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">الأقسام الحالية</h3>
+        <div id="adminCategoryList">
+          <p style="color:var(--text-muted);">جاري تحميل الأقسام...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DESIGN SECTION -->
+    <div class="admin-section" id="section-design">
+      <h2 class="admin-section-title">🎨 إعدادات التصميم والألوان</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">الألوان الأساسية</h3>
+        <div class="color-row">
+          <label class="admin-label" style="margin:0; min-width:150px;">لون التمييز (Accent)</label>
+          <input type="color" class="color-input" id="accentColorPicker" value="#00C6FF"
+            oninput="applyAccentLive(this.value)">
+          <span id="accentColorVal" style="font-size:0.85rem; color:var(--text-muted);">#00C6FF</span>
+        </div>
+        <div class="color-row">
+          <label class="admin-label" style="margin:0; min-width:150px;">خلفية الوضع الداكن</label>
+          <input type="color" class="color-input" id="bgDarkPicker" value="#0A0F2C">
+        </div>
+        <div class="color-row">
+          <label class="admin-label" style="margin:0; min-width:150px;">خلفية الوضع الفاتح</label>
+          <input type="color" class="color-input" id="bgLightPicker" value="#F0F9FF">
+        </div>
+        <button class="admin-btn" onclick="saveDesignCloud()">💾 حفظ إعدادات التصميم</button>
+      </div>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">الخطوط</h3>
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">الخط الإنجليزي</label>
+            <select class="admin-input" id="fontEn">
+              <option value="'Clash Display', sans-serif">Clash Display</option>
+              <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+              <option value="'Syne', sans-serif">Syne</option>
+              <option value="'Outfit', sans-serif">Outfit</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">الخط العربي</label>
+            <select class="admin-input" id="fontAr">
+              <option value="'El Messiri', sans-serif">El Messiri</option>
+              <option value="'Cairo', sans-serif">Cairo</option>
+              <option value="'Tajawal', sans-serif">Tajawal</option>
+              <option value="'Almarai', sans-serif">Almarai</option>
+            </select>
+          </div>
+        </div>
+        <button class="admin-btn" onclick="saveFontsCloud()">💾 حفظ الخطوط</button>
+      </div>
+    </div>
+
+    <!-- 5. SOCIALS SECTION -->
+    <div class="admin-section" id="section-socials">
+      <h2 class="admin-section-title">🔗 روابط السوشيال ميديا</h2>
+
+      <div class="admin-card" id="socialsEditCard">
+        <h3 class="admin-card-title">إدارة الروابط والظهور</h3>
+        <div id="socialRowsContainer"></div>
+        <button class="admin-btn" style="margin-top:20px;" onclick="saveSocialsCloud()">💾 حفظ الروابط</button>
+      </div>
+    </div>
+
+    <!-- 6. SECURITY SECTION -->
+    <div class="admin-section" id="section-security">
+      <h2 class="admin-section-title">🔐 الحساب والأمان</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">تغيير كلمة المرور في Supabase Auth</h3>
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:16px;" id="loggedUserEmail">
+          الحساب الحالي: جاري الفحص...
+        </p>
+        <div style="max-width:400px;">
+          <label class="admin-label">كلمة المرور الجديدة</label>
+          <input id="newPasswordInput" class="admin-input" type="password" placeholder="••••••••">
+          <button class="admin-btn" onclick="changeAdminPassword()">💾 تحديث كلمة المرور</button>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title" style="color:#ff5050;">⚠️ إعادة تعيين البيانات المؤقتة</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">مسح الكاش المحلي وإعادة الجلب المباشر من Supabase.</p>
+        <button class="admin-btn admin-btn-danger" onclick="localStorage.clear(); showToast('تم مسح الكاش المحلي'); setTimeout(() => location.reload(), 800);">
+          🔄 مسح الكاش وتحديث الصفحة
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /admin-main -->
+</div><!-- /admin-layout -->
+
+<!-- EDIT PROJECT MODAL -->
+<div class="modal-overlay" id="editProjectModal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-header">
+      <span class="modal-title">✎ تعديل بيانات الفيديو</span>
+      <button class="modal-close" onclick="closeEditProjectModal()">✕</button>
+    </div>
+    <div style="padding:24px;">
+      <input type="hidden" id="editProjId">
+      <div class="admin-grid-2">
+        <div>
+          <label class="admin-label">رابط الفيديو (Cloudflare / YouTube / MP4)</label>
+          <input id="editProjUrl" class="admin-input" type="url" placeholder="https://...">
+        </div>
+        <div>
+          <label class="admin-label">صورة الغلاف (Thumbnail URL)</label>
+          <input id="editProjThumbUrl" class="admin-input" type="url" placeholder="رابط الصورة المصغرة">
+        </div>
+      </div>
+      <div class="admin-grid-2">
+        <div>
+          <label class="admin-label">العنوان (عربي)</label>
+          <input id="editProjTitleAr" class="admin-input" type="text">
+        </div>
+        <div>
+          <label class="admin-label">العنوان (إنجليزي)</label>
+          <input id="editProjTitleEn" class="admin-input" type="text">
+        </div>
+      </div>
+      <div class="admin-grid-2">
+        <div>
+          <label class="admin-label">القسم / التصنيف</label>
+          <select id="editProjCategorySelect" class="admin-input"></select>
+        </div>
+        <div>
+          <label class="admin-label">البرامج المستخدمة</label>
+          <input id="editProjSoftware" class="admin-input" type="text">
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
+          <input type="checkbox" id="editProjFeatured" style="width:18px; height:18px; accent-color:var(--accent);">
+          <span>⭐ فيديو مميز في الصفحة الرئيسية (Featured)</span>
+        </label>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="admin-btn" style="background:rgba(255,255,255,0.08); border-color:var(--card-border);" onclick="closeEditProjectModal()">إلغاء</button>
+        <button class="admin-btn" onclick="saveEditedProjectCloud()">💾 حفظ التعديلات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CATEGORY MODAL -->
+<div class="modal-overlay" id="editCatModal">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-header">
+      <span class="modal-title">✎ تعديل بيانات القسم</span>
+      <button class="modal-close" onclick="closeEditCatModal()">✕</button>
+    </div>
+    <div style="padding:24px;">
+      <input type="hidden" id="editCatId">
+      <div class="admin-grid-2">
+        <div>
+          <label class="admin-label">الاسم (عربي)</label>
+          <input id="editCatNameAr" class="admin-input" type="text">
+        </div>
+        <div>
+          <label class="admin-label">الاسم (إنجليزي)</label>
+          <input id="editCatNameEn" class="admin-input" type="text">
+        </div>
+      </div>
+      <div class="admin-grid-2">
+        <div>
+          <label class="admin-label">Slug</label>
+          <input id="editCatSlug" class="admin-input" type="text">
+        </div>
+        <div>
+          <label class="admin-label">الترتيب</label>
+          <input id="editCatOrder" class="admin-input" type="number">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+        <button class="admin-btn" style="background:rgba(255,255,255,0.08); border-color:var(--card-border);" onclick="closeEditCatModal()">إلغاء</button>
+        <button class="admin-btn" onclick="saveEditedCategoryCloud()">💾 حفظ التعديل</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabaseClient.js"></script>
-<script src="js/auth.js"></script>
+<script src="../js/main.js"></script>
+
+<script>
+let localCategories = [];
+let localProjects = [];
+
+// Check login status on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  const isSupabase = isSupabaseConnected();
+  const connEl = document.getElementById('connStatus');
+  const topConnEl = document.getElementById('topConnStatus');
+
+  if (isSupabase) {
+    if (connEl) { connEl.className = 'status-badge status-online'; connEl.textContent = '⚡ متصل بقاعدة بيانات Supabase'; }
+    if (topConnEl) { topConnEl.className = 'status-badge status-online'; topConnEl.textContent = '⚡ Supabase متصل'; }
+  } else {
+    if (connEl) { connEl.className = 'status-badge status-offline'; connEl.textContent = '⚠️ يعمل بنمط التخزين المحلي (Local Mode)'; }
+    if (topConnEl) { topConnEl.className = 'status-badge status-offline'; topConnEl.textContent = '⚠️ نمط محلي'; }
+  }
+
+  // Check Supabase Auth session
+  let isAuthenticated = false;
+  if (isSupabase) {
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      if (data && data.session) {
+        isAuthenticated = true;
+        const user = data.session.user;
+        const userEl = document.getElementById('loggedUserEmail');
+        if (userEl) userEl.textContent = `الحساب المسجل: ${user.email}`;
+      }
+    } catch (e) { console.log('Session check error', e); }
+  }
+
+  // Fallback session
+  if (!isAuthenticated && sessionStorage.getItem('adminLoggedIn') === '1') {
+    isAuthenticated = true;
+  }
+
+  document.getElementById('loginScreen').style.display = isAuthenticated ? 'none' : 'flex';
+  document.getElementById('dashboard').style.display = isAuthenticated ? 'grid' : 'none';
+
+  if (isAuthenticated) {
+    await initAdminData();
+  }
+});
+
+// Admin Login
+async function adminLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  const btn = document.getElementById('loginSubmitBtn');
+  const err = document.getElementById('loginError');
+
+  btn.disabled = true;
+  btn.innerHTML = 'جاري التحقق...';
+  if (err) err.style.display = 'none';
+
+  // 1. Try Supabase Auth
+  if (isSupabaseConnected()) {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email.includes('@') ? email : `${email}@example.com`,
+        password: pass
+      });
+
+      if (!error && data.session) {
+        sessionStorage.setItem('adminLoggedIn', '1');
+        location.reload();
+        return;
+      }
+    } catch (err) {
+      console.log('Supabase auth failed, trying fallback', err);
+    }
+  }
+
+  // 2. Fallback Local Login
+  const storedUser = localStorage.getItem('adminUser') || 'saif';
+  const storedPass = localStorage.getItem('adminPass') || 'saif2024';
+
+  if ((email === storedUser || email === 'saif' || email === 'saifelsheikh@example.com') && (pass === storedPass || pass === 'saif2024')) {
+    sessionStorage.setItem('adminLoggedIn', '1');
+    location.reload();
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = 'دخول →';
+    if (err) {
+      err.style.display = 'block';
+      setTimeout(() => { err.style.display = 'none'; }, 4000);
+    }
+  }
+}
+
+// Admin Logout
+async function adminLogout() {
+  if (isSupabaseConnected()) {
+    try { await supabaseClient.auth.signOut(); } catch (e) {}
+  }
+  sessionStorage.removeItem('adminLoggedIn');
+  location.reload();
+}
+
+// Navigation between Admin tabs
+function adminNav(section) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('section-' + section);
+  const nav = document.querySelector(`[data-section="${section}"]`);
+  if (sec) sec.classList.add('active');
+  if (nav) nav.classList.add('active');
+}
+
+// Initialize Admin Dashboard Data
+async function initAdminData() {
+  const data = getSiteData();
+
+  // Load Profile inputs
+  document.getElementById('pNameAr').value = data.name_ar || '';
+  document.getElementById('pNameEn').value = data.name_en || '';
+  document.getElementById('pTitleAr').value = data.title_ar || '';
+  document.getElementById('pTitleEn').value = data.title_en || '';
+  document.getElementById('pDob').value = data.dob || '';
+  document.getElementById('pWhatsapp').value = data.whatsapp || '';
+  document.getElementById('pEmail').value = data.email || '';
+  document.getElementById('pBioAr').value = data.bio_ar || '';
+  document.getElementById('pBioEn').value = data.bio_en || '';
+
+  if (data.profilePhoto) {
+    const p = document.getElementById('photoPreview');
+    p.src = data.profilePhoto;
+    p.style.display = 'block';
+  }
+
+  if (data.accentColor) {
+    document.getElementById('accentColorPicker').value = data.accentColor;
+    document.getElementById('accentColorVal').textContent = data.accentColor;
+  }
+
+  // Load Categories & Projects
+  await loadCategoriesAdmin();
+  await loadProjectsAdmin();
+
+  // Render Socials
+  renderSocialsEdit();
+}
+
+// 1. Profile Cloud Save
+async function saveProfileCloud() {
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  btn.textContent = 'جاري الحفظ...';
+
+  const profileData = {
+    name_ar: document.getElementById('pNameAr').value.trim(),
+    name_en: document.getElementById('pNameEn').value.trim(),
+    title_ar: document.getElementById('pTitleAr').value.trim(),
+    title_en: document.getElementById('pTitleEn').value.trim(),
+    dob: document.getElementById('pDob').value.trim(),
+    bio_ar: document.getElementById('pBioAr').value.trim(),
+    bio_en: document.getElementById('pBioEn').value.trim(),
+    profile_photo: getSiteData().profilePhoto || ''
+  };
+
+  const contactData = {
+    whatsapp: document.getElementById('pWhatsapp').value.trim(),
+    email: document.getElementById('pEmail').value.trim()
+  };
+
+  if (isSupabaseConnected()) {
+    try {
+      await supabaseClient.from('site_settings').upsert([
+        {
+          key: 'hero',
+          value: {
+            ar: { title: profileData.name_ar, subtitle: profileData.title_ar },
+            en: { title: profileData.name_en, subtitle: profileData.title_en },
+            showreel_video_url: ''
+          }
+        },
+        {
+          key: 'about',
+          value: {
+            ar: { text: profileData.bio_ar },
+            en: { text: profileData.bio_en }
+          }
+        },
+        {
+          key: 'contact',
+          value: {
+            whatsapp: contactData.whatsapp,
+            email: contactData.email
+          }
+        },
+        {
+          key: 'profile',
+          value: {
+            dob: profileData.dob,
+            profile_photo: profileData.profile_photo
+          }
+        }
+      ], { onConflict: 'key' });
+    } catch (e) {
+      console.log('Supabase upsert error', e);
+    }
+  }
+
+  // Update local state
+  const updated = {
+    ...getSiteData(),
+    ...profileData,
+    ...contactData
+  };
+  state.siteData = updated;
+  localStorage.setItem('siteData', JSON.stringify(updated));
+
+  btn.disabled = false;
+  btn.textContent = '💾 حفظ في السحابة';
+  showToast('تم حفظ الملف الشخصي بنجاح ✓');
+}
+
+// 2. Categories Cloud Functions
+async function loadCategoriesAdmin() {
+  const list = document.getElementById('adminCategoryList');
+  const select = document.getElementById('newVideoCategorySelect');
+  const editSelect = document.getElementById('editProjCategorySelect');
+
+  let categories = [];
+  if (isSupabaseConnected()) {
+    try {
+      const { data } = await supabaseClient.from('categories').select('*').order('sort_order', { ascending: true });
+      if (data) categories = data;
+    } catch (e) {}
+  }
+
+  if (!categories.length) {
+    categories = JSON.parse(localStorage.getItem('portfolioCategories') || '[]');
+    if (!categories.length) {
+      categories = [
+        { id: '1', name: 'ريلز', name_en: 'Reels', slug: 'reels', sort_order: 1 },
+        { id: '2', name: 'عقاري', name_en: 'Real Estate', slug: 'real-estate', sort_order: 2 },
+        { id: '3', name: 'جيم', name_en: 'Gym', slug: 'gym', sort_order: 3 },
+        { id: '4', name: 'يوتيوب', name_en: 'YouTube', slug: 'youtube', sort_order: 4 },
+        { id: '5', name: 'إعلانات', name_en: 'Ads', slug: 'ads', sort_order: 5 }
+      ];
+    }
+  }
+
+  localCategories = categories;
+
+  // Render list
+  if (list) {
+    list.innerHTML = categories.map(c => `
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:700;">${c.name} <span style="color:var(--text-muted);font-size:0.85rem;">(${c.name_en || c.slug})</span></div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">Slug: /${c.slug} · الترتيب: ${c.sort_order || 0}</div>
+        </div>
+        <div class="action-btn-group">
+          <button class="admin-btn" style="padding:6px 12px; font-size:0.8rem; background:rgba(0,198,255,0.1); border-color:var(--accent);" onclick="openEditCatModal('${c.id}')">✎ تعديل</button>
+          <button class="admin-btn admin-btn-danger" style="padding:6px 12px; font-size:0.8rem;" onclick="deleteCategoryCloud('${c.id}')">حذف</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Populate selects
+  const opts = categories.map(c => `<option value="${c.id}">${c.name} (${c.name_en || c.slug})</option>`).join('');
+  if (select) select.innerHTML = opts;
+  if (editSelect) editSelect.innerHTML = opts;
+}
+
+async function addCategoryCloud() {
+  const nameAr = document.getElementById('newCatNameAr').value.trim();
+  const nameEn = document.getElementById('newCatNameEn').value.trim();
+  const slug = document.getElementById('newCatSlug').value.trim().toLowerCase() || nameAr;
+  const order = parseInt(document.getElementById('newCatOrder').value) || 0;
+
+  if (!nameAr) { showToast('يرجى كتابة اسم القسم'); return; }
+
+  const payload = {
+    name: nameAr,
+    name_en: nameEn || nameAr,
+    slug: slug,
+    sort_order: order
+  };
+
+  if (isSupabaseConnected()) {
+    const { error } = await supabaseClient.from('categories').insert(payload);
+    if (error) { showToast('خطأ: ' + error.message); return; }
+  } else {
+    payload.id = Date.now().toString();
+    localCategories.push(payload);
+    localStorage.setItem('portfolioCategories', JSON.stringify(localCategories));
+  }
+
+  showToast('تمت إضافة القسم بنجاح ✓');
+  document.getElementById('newCatNameAr').value = '';
+  document.getElementById('newCatNameEn').value = '';
+  document.getElementById('newCatSlug').value = '';
+  await loadCategoriesAdmin();
+}
+
+function openEditCatModal(id) {
+  const cat = localCategories.find(c => c.id == id);
+  if (!cat) return;
+  document.getElementById('editCatId').value = cat.id;
+  document.getElementById('editCatNameAr').value = cat.name || '';
+  document.getElementById('editCatNameEn').value = cat.name_en || '';
+  document.getElementById('editCatSlug').value = cat.slug || '';
+  document.getElementById('editCatOrder').value = cat.sort_order || 0;
+  document.getElementById('editCatModal').classList.add('open');
+}
+
+function closeEditCatModal() {
+  document.getElementById('editCatModal').classList.remove('open');
+}
+
+async function saveEditedCategoryCloud() {
+  const id = document.getElementById('editCatId').value;
+  const payload = {
+    name: document.getElementById('editCatNameAr').value.trim(),
+    name_en: document.getElementById('editCatNameEn').value.trim(),
+    slug: document.getElementById('editCatSlug').value.trim().toLowerCase(),
+    sort_order: parseInt(document.getElementById('editCatOrder').value) || 0
+  };
+
+  if (isSupabaseConnected()) {
+    const { error } = await supabaseClient.from('categories').update(payload).eq('id', id);
+    if (error) { showToast('خطأ: ' + error.message); return; }
+  } else {
+    const idx = localCategories.findIndex(c => c.id == id);
+    if (idx !== -1) localCategories[idx] = { ...localCategories[idx], ...payload };
+    localStorage.setItem('portfolioCategories', JSON.stringify(localCategories));
+  }
+
+  closeEditCatModal();
+  showToast('تم تحديث القسم بنجاح ✓');
+  await loadCategoriesAdmin();
+}
+
+async function deleteCategoryCloud(id) {
+  if (!confirm('هل تريد بالتأكيد حذف هذا القسم؟')) return;
+
+  if (isSupabaseConnected()) {
+    await supabaseClient.from('categories').delete().eq('id', id);
+  } else {
+    localCategories = localCategories.filter(c => c.id !== id);
+    localStorage.setItem('portfolioCategories', JSON.stringify(localCategories));
+  }
+
+  showToast('تم حذف القسم');
+  await loadCategoriesAdmin();
+}
+
+// 3. Projects Cloud Functions
+async function loadProjectsAdmin() {
+  const container = document.getElementById('adminVideoList');
+  if (!container) return;
+
+  let projects = [];
+  if (isSupabaseConnected()) {
+    try {
+      const { data } = await supabaseClient.from('projects').select('*, categories(name)').order('sort_order', { ascending: true });
+      if (data) projects = data;
+    } catch (e) {}
+  }
+
+  if (!projects.length) {
+    projects = JSON.parse(localStorage.getItem('portfolioVideos') || '[]');
+  }
+
+  localProjects = projects;
+
+  if (!projects.length) {
+    container.innerHTML = '<p style="color:var(--text-muted); padding:16px 0;">لا توجد فيديوهات مضافة بعد.</p>';
+    return;
+  }
+
+  container.innerHTML = projects.map(p => {
+    const info = parseVideoInfo(p.video_url || '');
+    const ytId = p.youtube_id || (info.type === 'youtube' ? info.id : 'dQw4w9WgXcQ');
+    const thumb = p.thumbnail_url || info.thumbUrl || `https://img.youtube.com/vi/${ytId}/default.jpg`;
+    const catName = p.categories ? p.categories.name : (p.category || 'عام');
+
+    return `
+      <div class="video-admin-item" data-id="${p.id}">
+        <img class="video-admin-thumb" src="${thumb}" alt="" onerror="this.src='https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=200&q=80'">
+        <div class="video-admin-info">
+          <div class="video-admin-title">${p.title || p.title_ar} ${p.featured ? '⭐' : ''}</div>
+          <div class="video-admin-cat">${catName} · ${p.year || 2024} <span style="font-size:0.75rem; color:var(--accent);">(${info.type === 'cloudflare_stream' ? 'Cloudflare Stream' : (info.type === 'direct' ? 'Cloudflare R2 / MP4' : 'YouTube')})</span></div>
+        </div>
+        <div class="action-btn-group">
+          <button class="admin-btn" style="padding:6px 12px; font-size:0.8rem; background:rgba(0,198,255,0.1); border-color:var(--accent);" onclick="openEditProjectModal('${p.id}')">✎ تعديل</button>
+          <button class="admin-btn admin-btn-danger" onclick="deleteProjectCloud('${p.id}')" style="padding:6px 12px; font-size:0.8rem;">حذف</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function addVideoCloud() {
+  const urlInput = document.getElementById('newVideoUrl');
+  const customThumbInput = document.getElementById('newVideoThumbUrl');
+  const titleAr = document.getElementById('newVideoTitleAr').value.trim();
+  const titleEn = document.getElementById('newVideoTitleEn').value.trim();
+  const catSelect = document.getElementById('newVideoCategorySelect');
+  const software = document.getElementById('newVideoSoftware').value.split(',').map(s => s.trim()).filter(Boolean);
+  const featured = document.getElementById('newVideoFeatured').checked;
+
+  if (!urlInput || !urlInput.value.trim() || !titleAr) {
+    showToast('يرجى ملء رابط الفيديو والعنوان');
+    return;
+  }
+
+  const rawUrl = urlInput.value.trim();
+  const info = parseVideoInfo(rawUrl);
+  const customThumb = customThumbInput ? customThumbInput.value.trim() : '';
+  const finalThumb = customThumb || info.thumbUrl || '';
+
+  const payload = {
+    title: titleAr,
+    title_en: titleEn || titleAr,
+    slug: 'video-' + Date.now(),
+    video_url: rawUrl,
+    youtube_id: info.type === 'youtube' ? info.id : null,
+    thumbnail_url: finalThumb,
+    category_id: catSelect.value || null,
+    software: software,
+    featured: featured,
+    published: true,
+    sort_order: localProjects.length + 1
+  };
+
+  if (isSupabaseConnected()) {
+    const { error } = await supabaseClient.from('projects').insert(payload);
+    if (error) { showToast('خطأ: ' + error.message); return; }
+  } else {
+    payload.id = Date.now().toString();
+    localProjects.push(payload);
+    localStorage.setItem('portfolioVideos', JSON.stringify(localProjects));
+  }
+
+  showToast('تمت إضافة الفيديو بنجاح ✓');
+  urlInput.value = '';
+  if (customThumbInput) customThumbInput.value = '';
+  document.getElementById('newVideoTitleAr').value = '';
+  document.getElementById('newVideoTitleEn').value = '';
+  document.getElementById('newVideoSoftware').value = '';
+  document.getElementById('newVideoFeatured').checked = false;
+  document.getElementById('ytPreview').style.display = 'none';
+
+  await loadProjectsAdmin();
+}
+
+function openEditProjectModal(id) {
+  const p = localProjects.find(item => item.id == id);
+  if (!p) return;
+
+  document.getElementById('editProjId').value = p.id;
+  document.getElementById('editProjUrl').value = p.video_url || '';
+  document.getElementById('editProjThumbUrl').value = p.thumbnail_url || '';
+  document.getElementById('editProjTitleAr').value = p.title || p.title_ar || '';
+  document.getElementById('editProjTitleEn').value = p.title_en || '';
+  document.getElementById('editProjCategorySelect').value = p.category_id || '';
+  document.getElementById('editProjSoftware').value = (p.software || []).join(', ');
+  document.getElementById('editProjFeatured').checked = !!p.featured;
+
+  document.getElementById('editProjectModal').classList.add('open');
+}
+
+function closeEditProjectModal() {
+  document.getElementById('editProjectModal').classList.remove('open');
+}
+
+async function saveEditedProjectCloud() {
+  const id = document.getElementById('editProjId').value;
+  const rawUrl = document.getElementById('editProjUrl').value.trim();
+  const customThumb = document.getElementById('editProjThumbUrl').value.trim();
+  const info = parseVideoInfo(rawUrl);
+  const finalThumb = customThumb || info.thumbUrl || '';
+
+  const payload = {
+    title: document.getElementById('editProjTitleAr').value.trim(),
+    title_en: document.getElementById('editProjTitleEn').value.trim(),
+    video_url: rawUrl,
+    youtube_id: info.type === 'youtube' ? info.id : null,
+    thumbnail_url: finalThumb,
+    category_id: document.getElementById('editProjCategorySelect').value || null,
+    software: document.getElementById('editProjSoftware').value.split(',').map(s => s.trim()).filter(Boolean),
+    featured: document.getElementById('editProjFeatured').checked
+  };
+
+  if (isSupabaseConnected()) {
+    const { error } = await supabaseClient.from('projects').update(payload).eq('id', id);
+    if (error) { showToast('خطأ: ' + error.message); return; }
+  } else {
+    const idx = localProjects.findIndex(item => item.id == id);
+    if (idx !== -1) localProjects[idx] = { ...localProjects[idx], ...payload };
+    localStorage.setItem('portfolioVideos', JSON.stringify(localProjects));
+  }
+
+  closeEditProjectModal();
+  showToast('تم تعديل الفيديو بنجاح ✓');
+  await loadProjectsAdmin();
+}
+
+async function deleteProjectCloud(id) {
+  if (!confirm('متأكد عايز تمسح الفيديو ده؟')) return;
+
+  if (isSupabaseConnected()) {
+    await supabaseClient.from('projects').delete().eq('id', id);
+  } else {
+    localProjects = localProjects.filter(p => p.id != id);
+    localStorage.setItem('portfolioVideos', JSON.stringify(localProjects));
+  }
+
+  showToast('تم حذف الفيديو');
+  await loadProjectsAdmin();
+}
+
+// 4. Design Cloud Save
+async function saveDesignCloud() {
+  const accent = document.getElementById('accentColorPicker').value;
+  const darkBg = document.getElementById('bgDarkPicker').value;
+  const lightBg = document.getElementById('bgLightPicker').value;
+
+  if (isSupabaseConnected()) {
+    try {
+      await supabaseClient.from('theme_settings').upsert([
+        { mode: 'dark', background: darkBg, accent: accent, card: 'rgba(255,255,255,0.04)', text_color: '#FFFFFF' },
+        { mode: 'light', background: lightBg, accent: accent, card: 'rgba(255,255,255,0.7)', text_color: '#0A0F2C' }
+      ], { onConflict: 'mode' });
+
+      await supabaseClient.from('site_settings').upsert({
+        key: 'branding',
+        value: { accent_color: accent }
+      }, { onConflict: 'key' });
+    } catch (e) {}
+  }
+
+  saveSiteData({ accentColor: accent });
+  showToast('تم حفظ إعدادات التصميم ✓');
+}
+
+function applyAccentLive(color) {
+  document.documentElement.style.setProperty('--accent', color);
+  document.getElementById('accentColorVal').textContent = color;
+}
+
+function saveFontsCloud() {
+  const fontEn = document.getElementById('fontEn').value;
+  const fontAr = document.getElementById('fontAr').value;
+  document.documentElement.style.setProperty('--font-en', fontEn);
+  document.documentElement.style.setProperty('--font-ar', fontAr);
+
+  if (isSupabaseConnected()) {
+    supabaseClient.from('site_settings').upsert({
+      key: 'branding',
+      value: { font_en: fontEn, font_ar: fontAr, accent_color: document.getElementById('accentColorPicker').value }
+    }, { onConflict: 'key' });
+  }
+
+  saveSiteData({ fontEn, fontAr });
+  showToast('تم حفظ الخطوط ✓');
+}
+
+// 5. Socials Cloud Save
+function renderSocialsEdit() {
+  const data = getSiteData();
+  const container = document.getElementById('socialRowsContainer');
+  if (!container) return;
+
+  const socialMeta = {
+    instagram: { icon: '📸', name: 'Instagram / إنستاغرام' },
+    facebook: { icon: '👤', name: 'Facebook / فيسبوك' },
+    youtube: { icon: '▶️', name: 'YouTube / يوتيوب' },
+    tiktok: { icon: '🎵', name: 'TikTok / تيك توك' },
+    whatsapp: { icon: '💬', name: 'WhatsApp / واتساب' },
+  };
+
+  let html = '';
+  Object.entries(data.socials || {}).forEach(([key, val]) => {
+    const meta = socialMeta[key];
+    if (!meta) return;
+    html += `
+      <div class="toggle-row">
+        <div style="display:flex; align-items:center; gap:10px; flex:1;">
+          <span style="font-size:1.3rem;">${meta.icon}</span>
+          <div style="flex:1;">
+            <div style="font-size:0.88rem; font-weight:600; margin-bottom:4px;">${meta.name}</div>
+            <input class="admin-input social-url-input" data-key="${key}" style="margin:0;" type="url" value="${val.url || ''}" placeholder="https://...">
+          </div>
+        </div>
+        <div style="margin-right:16px;">
+          <input type="checkbox" class="social-visible-check" data-key="${key}" ${val.visible !== false ? 'checked' : ''} style="width:20px; height:20px; accent-color:var(--accent);">
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+async function saveSocialsCloud() {
+  const data = getSiteData();
+  const updatedSocials = { ...data.socials };
+
+  document.querySelectorAll('.social-url-input').forEach(input => {
+    const key = input.dataset.key;
+    if (updatedSocials[key]) updatedSocials[key].url = input.value.trim();
+  });
+
+  document.querySelectorAll('.social-visible-check').forEach(check => {
+    const key = check.dataset.key;
+    if (updatedSocials[key]) updatedSocials[key].visible = check.checked;
+  });
+
+  if (isSupabaseConnected()) {
+    try {
+      await supabaseClient.from('site_settings').upsert({
+        key: 'social_links',
+        value: updatedSocials
+      }, { onConflict: 'key' });
+    } catch (e) {}
+  }
+
+  saveSiteData({ socials: updatedSocials });
+  showToast('تم حفظ روابط السوشيال ميديا ✓');
+}
+
+// 6. Security & Password Update
+async function changeAdminPassword() {
+  const newPass = document.getElementById('newPasswordInput').value.trim();
+  if (!newPass || newPass.length < 6) {
+    showToast('يجب أن تكون كلمة المرور 6 أحرف على الأقل');
+    return;
+  }
+
+  if (isSupabaseConnected()) {
+    try {
+      const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+      if (error) { showToast('خطأ: ' + error.message); return; }
+    } catch (e) {}
+  }
+
+  localStorage.setItem('adminPass', newPass);
+  document.getElementById('newPasswordInput').value = '';
+  showToast('تم تحديث كلمة المرور بنجاح ✓');
+}
+
+// Photo upload with Supabase Storage support
+async function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  showToast('جاري معالجة ورفع الصورة...');
+  let photoUrl = '';
+
+  if (isSupabaseConnected()) {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const { data, error } = await supabaseClient.storage.from('portfolio-media').upload(fileName, file);
+      if (!error) {
+        const { data: publicData } = supabaseClient.storage.from('portfolio-media').getPublicUrl(fileName);
+        if (publicData && publicData.publicUrl) {
+          photoUrl = publicData.publicUrl;
+        }
+      }
+    } catch (err) {
+      console.log('Storage upload notice:', err);
+    }
+  }
+
+  if (!photoUrl) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      photoUrl = ev.target.result;
+      applyAndSavePhoto(photoUrl);
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  applyAndSavePhoto(photoUrl);
+}
+
+function applyAndSavePhoto(url) {
+  const current = getSiteData();
+  const updated = { ...current, profilePhoto: url };
+  state.siteData = updated;
+  localStorage.setItem('siteData', JSON.stringify(updated));
+
+  const preview = document.getElementById('photoPreview');
+  if (preview) { preview.src = url; preview.style.display = 'block'; }
+
+  if (isSupabaseConnected()) {
+    supabaseClient.from('site_settings').upsert({
+      key: 'profile',
+      value: {
+        name_ar: current.name_ar,
+        name_en: current.name_en,
+        title_ar: current.title_ar,
+        title_en: current.title_en,
+        dob: current.dob,
+        bio_ar: current.bio_ar,
+        bio_en: current.bio_en,
+        profile_photo: url
+      }
+    }, { onConflict: 'key' });
+  }
+
+  showToast('تم تحديث صورة البروفايل بنجاح ✓');
+}
+
+// Video Preview helper (Cloudflare Stream, Cloudflare R2, YouTube)
+function previewVideoAdmin() {
+  const urlInput = document.getElementById('newVideoUrl');
+  const customThumbInput = document.getElementById('newVideoThumbUrl');
+  const preview = document.getElementById('ytPreview');
+  if (!urlInput || !preview) return;
+
+  const rawUrl = urlInput.value.trim();
+  const info = parseVideoInfo(rawUrl);
+  const customThumb = customThumbInput ? customThumbInput.value.trim() : '';
+
+  if (customThumb) {
+    preview.src = customThumb;
+    preview.style.display = 'block';
+  } else if (info.thumbUrl) {
+    preview.src = info.thumbUrl;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+</script>
 </body>
 </html>

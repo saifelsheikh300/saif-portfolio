@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أعمالي | سيف الشيخ</title>
+  <meta name="description" content="معرض أعمال سيف الشيخ في مونتاج الفيديو والموشن جرافيك">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="bg-logos">
+    <div class="bg-logo bg-logo-ae">Ae</div>
+    <div class="bg-logo bg-logo-pr">Pr</div>
+  </div>
+  <div class="particles-container"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo ar">سيف الشيخ</div>
+  <div class="nav-logo en" style="display:none;font-family:var(--font-en)">Saif El Sheikh</div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="ar">الرئيسية</a><a href="index.html" class="en">Home</a></li>
+    <li><a href="portfolio.html" class="ar">أعمالي</a><a href="portfolio.html" class="en">Portfolio</a></li>
+    <li><a href="contact.html" class="ar">تواصل</a><a href="contact.html" class="en">Contact</a></li>
+  </ul>
+  <div class="nav-controls">
+    <button class="nav-btn" id="themeToggle" title="Toggle Theme">☀️</button>
+    <button class="nav-btn" id="langToggle" title="Toggle Language">EN</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" class="ar">الرئيسية</a>
+  <a href="index.html" class="en">Home</a>
+  <a href="portfolio.html" class="ar">أعمالي</a>
+  <a href="portfolio.html" class="en">Portfolio</a>
+  <a href="contact.html" class="ar">تواصل</a>
+  <a href="contact.html" class="en">Contact</a>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page-content page-transition">
+  <section class="section">
+    <h1 class="section-title reveal">
+      <span class="ar">معرض <span class="accent">أعمالي</span></span>
+      <span class="en">My <span class="accent">Portfolio</span></span>
+    </h1>
+
+    <!-- FILTER TABS & SEARCH -->
+    <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; margin-bottom:32px;" class="reveal">
+      <div class="filter-tabs" id="filterTabs" style="margin-bottom:0;">
+        <!-- Loaded by JS -->
+      </div>
+      <div style="min-width:240px; flex:1; max-width:320px;">
+        <input type="text" id="portfolioSearchInput" class="form-input" 
+          placeholder="🔍 ابحث في الأعمال..." 
+          style="padding:10px 18px; border-radius:100px; font-size:0.88rem; width:100%;"
+          oninput="handlePortfolioSearch(this.value)">
+      </div>
+    </div>
+
+    <!-- PORTFOLIO GRID -->
+    <div class="portfolio-grid" id="portfolioGrid">
+      <div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-muted);">
+        <span class="ar">جاري تحميل الأعمال...</span>
+        <span class="en">Loading portfolio...</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="ar">صُنع بـ ❤️ بواسطة <a href="index.html">سيف الشيخ</a> · 2024</p>
+    <p class="en">Made with ❤️ by <a href="index.html">Saif El Sheikh</a> · 2024</p>
+  </footer>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-video">
+      <iframe id="modalIframe" allowfullscreen allow="autoplay"></iframe>
+      <video id="modalVideo" controls playsinline style="display:none;"></video>
+    </div>
+  </div>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/main.js"></script>
+<script>
+  function fixNavLogo() {
+    const arLogo = document.querySelector('.nav-logo.ar');
+    const enLogo = document.querySelector('.nav-logo.en');
+    if (arLogo && enLogo) {
+      if (state.lang === 'ar') { arLogo.style.display = ''; enLogo.style.display = 'none'; }
+      else { arLogo.style.display = 'none'; enLogo.style.display = ''; }
+    }
+  }
+  document.getElementById('langToggle')?.addEventListener('click', () => { fixNavLogo(); setTimeout(renderFilters, 50); });
+  fixNavLogo();
+</script>
+</body>
+</html>

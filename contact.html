@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تواصل معي | سيف الشيخ</title>
+  <meta name="description" content="تواصل مع سيف الشيخ — فيديو إيديتور">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="bg-logos">
+    <div class="bg-logo bg-logo-ae">Ae</div>
+    <div class="bg-logo bg-logo-pr">Pr</div>
+  </div>
+  <div class="particles-container"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo ar">سيف الشيخ</div>
+  <div class="nav-logo en" style="display:none;font-family:var(--font-en)">Saif El Sheikh</div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="ar">الرئيسية</a><a href="index.html" class="en">Home</a></li>
+    <li><a href="portfolio.html" class="ar">أعمالي</a><a href="portfolio.html" class="en">Portfolio</a></li>
+    <li><a href="contact.html" class="ar">تواصل</a><a href="contact.html" class="en">Contact</a></li>
+  </ul>
+  <div class="nav-controls">
+    <button class="nav-btn" id="themeToggle" title="Toggle Theme">☀️</button>
+    <button class="nav-btn" id="langToggle" title="Toggle Language">EN</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" class="ar">الرئيسية</a>
+  <a href="index.html" class="en">Home</a>
+  <a href="portfolio.html" class="ar">أعمالي</a>
+  <a href="portfolio.html" class="en">Portfolio</a>
+  <a href="contact.html" class="ar">تواصل</a>
+  <a href="contact.html" class="en">Contact</a>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page-content page-transition">
+  <section class="section">
+    <h1 class="section-title reveal">
+      <span class="ar">تواصل <span class="accent">معي</span></span>
+      <span class="en">Get In <span class="accent">Touch</span></span>
+    </h1>
+
+    <div class="contact-layout">
+
+      <!-- SOCIAL LINKS -->
+      <div>
+        <h3 class="reveal" style="margin-bottom:20px; font-size:1.1rem; color:var(--text-muted);">
+          <span class="ar">تابعني على</span>
+          <span class="en">Find me on</span>
+        </h3>
+        <div id="socialLinks"></div>
+      </div>
+
+      <!-- CONTACT FORM -->
+      <div class="contact-form-card reveal">
+        <h3 style="margin-bottom:24px; font-size:1.1rem;">
+          <span class="ar">أرسل رسالة عبر واتساب</span>
+          <span class="en">Send a WhatsApp Message</span>
+        </h3>
+        <form id="contactForm">
+          <div class="form-group">
+            <label class="form-label ar" for="contactName">اسمك</label>
+            <label class="form-label en" for="contactName">Your Name</label>
+            <input type="text" id="contactName" class="form-input" required
+              placeholder="اكتب اسمك هنا...">
+          </div>
+          <div class="form-group">
+            <label class="form-label ar" for="contactMsg">رسالتك</label>
+            <label class="form-label en" for="contactMsg">Your Message</label>
+            <textarea id="contactMsg" class="form-textarea" required
+              placeholder="اكتب رسالتك هنا..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+            <span>💬</span>
+            <span class="ar">إرسال عبر واتساب</span>
+            <span class="en">Send via WhatsApp</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="ar">صُنع بـ ❤️ بواسطة <a href="index.html">سيف الشيخ</a> · 2024</p>
+    <p class="en">Made with ❤️ by <a href="index.html">Saif El Sheikh</a> · 2024</p>
+  </footer>
+</div>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/main.js"></script>
+<script>
+  function fixNavLogo() {
+    const arLogo = document.querySelector('.nav-logo.ar');
+    const enLogo = document.querySelector('.nav-logo.en');
+    if (arLogo && enLogo) {
+      if (state.lang === 'ar') { arLogo.style.display = ''; enLogo.style.display = 'none'; }
+      else { arLogo.style.display = 'none'; enLogo.style.display = ''; }
+    }
+  }
+  document.getElementById('langToggle')?.addEventListener('click', fixNavLogo);
+  fixNavLogo();
+</script>
+</body>
+</html>

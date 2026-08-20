@@ -19,6 +19,72 @@
     .status-online { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
     .status-offline { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
     .action-btn-group { display: flex; gap: 8px; align-items: center; }
+
+    /* Cloudflare Direct Upload Styles */
+    .upload-box {
+      border: 2px dashed var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      background: rgba(0, 198, 255, 0.03);
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s;
+      margin-bottom: 16px;
+    }
+    .upload-box:hover {
+      border-color: var(--accent);
+      background: rgba(0, 198, 255, 0.08);
+    }
+    .progress-container {
+      display: none;
+      margin: 16px 0;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      height: 24px;
+      position: relative;
+      border: 1px solid var(--card-border);
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0077B6, var(--accent));
+      transition: width 0.15s ease;
+      border-radius: 12px;
+    }
+    .progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    .upload-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .upload-tab-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .upload-tab-btn.active {
+      background: var(--accent);
+      color: #0A0F2C;
+      border-color: var(--accent);
+    }
+
     @media (max-width: 768px) {
       .admin-grid-2 { grid-template-columns: 1fr; }
     }
@@ -95,6 +161,10 @@
     <div class="admin-nav-item" data-section="categories" onclick="adminNav('categories')">
       <span>🏷️</span>
       <span class="ar">إدارة الأقسام والتصنيفات</span>
+    </div>
+    <div class="admin-nav-item" data-section="cloudflare" onclick="adminNav('cloudflare')">
+      <span>☁️</span>
+      <span class="ar">إعدادات Cloudflare R2</span>
     </div>
     <div class="admin-nav-item" data-section="design" onclick="adminNav('design')">
       <span>🎨</span>
@@ -182,25 +252,41 @@
       <h2 class="admin-section-title">🎬 إدارة الفيديوهات والأعمال</h2>
 
       <div class="admin-card">
-        <h3 class="admin-card-title">➕ إضافة فيديو جديد</h3>
-        <div>
+        <h3 class="admin-card-title">➕ إضافة عمل / فيديو جديد</h3>
+        
+        <!-- Upload Mode Switch -->
+        <div class="upload-tabs">
+          <button type="button" class="upload-tab-btn active" id="tabUploadFile" onclick="switchUploadMode('file')">📁 رفع فيديو مباشر إلى Cloudflare R2</button>
+          <button type="button" class="upload-tab-btn" id="tabPasteUrl" onclick="switchUploadMode('url')">🔗 رابط فيديو (YouTube / Stream / URL)</button>
+        </div>
+
+        <!-- Mode A: Direct Cloudflare R2 Upload -->
+        <div id="modeFileUploadArea">
+          <input type="file" id="directVideoFileInput" accept="video/mp4,video/webm,video/quicktime,video/m4v" style="display:none;" onchange="handleDirectVideoSelection(event)">
+          <div class="upload-box" onclick="document.getElementById('directVideoFileInput').click()">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">☁️</div>
+            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 4px;" id="uploadBoxTitle">اضغط لاختيار ملف فيديو من جهازك (MP4 / WebM / MOV)</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);" id="uploadBoxSubtitle">سيتم رفع الفيديو مباشرة إلى مساحة Cloudflare R2 واستخراج صورة الغلاف تلقائياً</div>
+          </div>
+
+          <!-- Upload Progress Bar -->
+          <div class="progress-container" id="uploadProgressContainer">
+            <div class="progress-bar" id="uploadProgressBar"></div>
+            <div class="progress-text" id="uploadProgressText">0%</div>
+          </div>
+        </div>
+
+        <!-- Mode B: Paste Video URL -->
+        <div id="modeUrlUploadArea" style="display: none;">
           <label class="admin-label">رابط الفيديو (Cloudflare Stream, Cloudflare R2 / MP4, YouTube, Vimeo)</label>
           <input id="newVideoUrl" class="admin-input" type="url" placeholder="https://iframe.videodelivery.net/... أو https://.../video.mp4 أو YouTube" oninput="previewVideoAdmin()">
-          <img id="ytPreview" class="yt-preview-img" alt="Video preview">
         </div>
-        <div class="admin-grid-2">
-          <div>
-            <label class="admin-label">صورة الغلاف (Thumbnail URL - اختياري)</label>
-            <input id="newVideoThumbUrl" class="admin-input" type="url" placeholder="تلقائي لليوتيوب وكلاود فلير أو ضع رابط صورة">
-          </div>
-          <div>
-            <label class="admin-label">القسم / التصنيف</label>
-            <select id="newVideoCategorySelect" class="admin-input">
-              <option value="">جاري تحميل الأقسام...</option>
-            </select>
-          </div>
-        </div>
-        <div class="admin-grid-2">
+
+        <!-- Video & Thumbnail Preview -->
+        <img id="ytPreview" class="yt-preview-img" alt="Video preview">
+
+        <!-- Form fields -->
+        <div class="admin-grid-2" style="margin-top: 16px;">
           <div>
             <label class="admin-label">العنوان (عربي)</label>
             <input id="newVideoTitleAr" class="admin-input" type="text" placeholder="عنوان الفيديو بالعربي">
@@ -210,6 +296,7 @@
             <input id="newVideoTitleEn" class="admin-input" type="text" placeholder="Video title in English">
           </div>
         </div>
+
         <div class="admin-grid-2">
           <div>
             <label class="admin-label">القسم / التصنيف</label>
@@ -218,17 +305,24 @@
             </select>
           </div>
           <div>
-            <label class="admin-label">البرامج المستخدمة (مفصولة بفواصل)</label>
-            <input id="newVideoSoftware" class="admin-input" type="text" placeholder="Premiere Pro, After Effects">
+            <label class="admin-label">صورة الغلاف (Thumbnail URL - اختياري)</label>
+            <input id="newVideoThumbUrl" class="admin-input" type="url" placeholder="تلقائي لليوتيوب وكلاود فلير أو رابط صورة">
           </div>
         </div>
-        <div style="margin-bottom:16px;">
+
+        <div>
+          <label class="admin-label">البرامج المستخدمة (مفصولة بفواصل)</label>
+          <input id="newVideoSoftware" class="admin-input" type="text" placeholder="Premiere Pro, After Effects">
+        </div>
+
+        <div style="margin-bottom:16px; margin-top:8px;">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
             <input type="checkbox" id="newVideoFeatured" style="width:18px; height:18px; accent-color:var(--accent);">
             <span>⭐ فيديو مميز في الصفحة الرئيسية (Featured)</span>
           </label>
         </div>
-        <button class="admin-btn" id="addVideoBtn" onclick="addVideoCloud()">➕ إضافة الفيديو إلى Supabase</button>
+
+        <button class="admin-btn" id="addVideoBtn" onclick="submitNewVideo()">➕ حفظ وإضافة الفيديو إلى Supabase</button>
       </div>
 
       <div class="admin-card">
@@ -276,7 +370,24 @@
       </div>
     </div>
 
-    <!-- 4. DESIGN SECTION -->
+    <!-- 4. CLOUDFLARE R2 SETTINGS -->
+    <div class="admin-section" id="section-cloudflare">
+      <h2 class="admin-section-title">☁️ إعدادات Cloudflare R2 Uploader</h2>
+
+      <div class="admin-card">
+        <h3 class="admin-card-title">رابط الـ Cloudflare Worker للرفع المباشر</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 16px;">
+          لرفع الفيديوهات مباشرة من جهازك إلى مساحة <strong>Cloudflare R2</strong> بدون قيود الحجم، أنشئ Worker باستخدام كود <a href="../cloudflare_worker.js" target="_blank" style="color: var(--accent); text-decoration: underline;">cloudflare_worker.js</a> وضع رابطه هنا.
+        </p>
+        <div style="max-width: 600px;">
+          <label class="admin-label">رابط الـ Worker (Cloudflare Worker URL)</label>
+          <input id="cfWorkerUrlInput" class="admin-input" type="url" placeholder="https://r2-video-uploader.your-subdomain.workers.dev">
+          <button class="admin-btn" onclick="saveCloudflareWorkerSettings()">💾 حفظ رابط الـ Worker</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. DESIGN SECTION -->
     <div class="admin-section" id="section-design">
       <h2 class="admin-section-title">🎨 إعدادات التصميم والألوان</h2>
 
@@ -325,7 +436,7 @@
       </div>
     </div>
 
-    <!-- 5. SOCIALS SECTION -->
+    <!-- 6. SOCIALS SECTION -->
     <div class="admin-section" id="section-socials">
       <h2 class="admin-section-title">🔗 روابط السوشيال ميديا</h2>
 
@@ -336,7 +447,7 @@
       </div>
     </div>
 
-    <!-- 6. SECURITY SECTION -->
+    <!-- 7. SECURITY SECTION -->
     <div class="admin-section" id="section-security">
       <h2 class="admin-section-title">🔐 الحساب والأمان</h2>
 
@@ -461,6 +572,8 @@
 <script>
 let localCategories = [];
 let localProjects = [];
+let selectedDirectVideoFile = null;
+let currentUploadMode = 'file'; // 'file' or 'url'
 
 // Check login status on page load
 document.addEventListener('DOMContentLoaded', async () => {
@@ -490,7 +603,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) { console.log('Session check error', e); }
   }
 
-  // Fallback session
   if (!isAuthenticated && sessionStorage.getItem('adminLoggedIn') === '1') {
     isAuthenticated = true;
   }
@@ -515,7 +627,6 @@ async function adminLogin(e) {
   btn.innerHTML = 'جاري التحقق...';
   if (err) err.style.display = 'none';
 
-  // 1. Try Supabase Auth
   if (isSupabaseConnected()) {
     try {
       const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -533,11 +644,10 @@ async function adminLogin(e) {
     }
   }
 
-  // 2. Fallback Local Login
   const storedUser = localStorage.getItem('adminUser') || 'saif';
   const storedPass = localStorage.getItem('adminPass') || 'saif2024';
 
-  if ((email === storedUser || email === 'saif' || email === 'saifelsheikh@example.com') && (pass === storedPass || pass === 'saif2024')) {
+  if ((email === storedUser || email === 'saif' || email === 'saifelsheikh330@gmail.com') && (pass === storedPass || pass === 'saif2024')) {
     sessionStorage.setItem('adminLoggedIn', '1');
     location.reload();
   } else {
@@ -595,12 +705,38 @@ async function initAdminData() {
     document.getElementById('accentColorVal').textContent = data.accentColor;
   }
 
+  // Load Cloudflare worker URL setting
+  const cfWorkerUrl = localStorage.getItem('cfWorkerUrl') || '';
+  const cfInput = document.getElementById('cfWorkerUrlInput');
+  if (cfInput) cfInput.value = cfWorkerUrl;
+
   // Load Categories & Projects
   await loadCategoriesAdmin();
   await loadProjectsAdmin();
 
   // Render Socials
   renderSocialsEdit();
+}
+
+// Upload Mode Switch (File vs URL)
+function switchUploadMode(mode) {
+  currentUploadMode = mode;
+  const tabFile = document.getElementById('tabUploadFile');
+  const tabUrl = document.getElementById('tabPasteUrl');
+  const areaFile = document.getElementById('modeFileUploadArea');
+  const areaUrl = document.getElementById('modeUrlUploadArea');
+
+  if (mode === 'file') {
+    tabFile.classList.add('active');
+    tabUrl.classList.remove('active');
+    areaFile.style.display = 'block';
+    areaUrl.style.display = 'none';
+  } else {
+    tabFile.classList.remove('active');
+    tabUrl.classList.add('active');
+    areaFile.style.display = 'none';
+    areaUrl.style.display = 'block';
+  }
 }
 
 // 1. Profile Cloud Save
@@ -663,7 +799,6 @@ async function saveProfileCloud() {
     }
   }
 
-  // Update local state
   const updated = {
     ...getSiteData(),
     ...profileData,
@@ -693,20 +828,10 @@ async function loadCategoriesAdmin() {
 
   if (!categories.length) {
     categories = JSON.parse(localStorage.getItem('portfolioCategories') || '[]');
-    if (!categories.length) {
-      categories = [
-        { id: '1', name: 'ريلز', name_en: 'Reels', slug: 'reels', sort_order: 1 },
-        { id: '2', name: 'عقاري', name_en: 'Real Estate', slug: 'real-estate', sort_order: 2 },
-        { id: '3', name: 'جيم', name_en: 'Gym', slug: 'gym', sort_order: 3 },
-        { id: '4', name: 'يوتيوب', name_en: 'YouTube', slug: 'youtube', sort_order: 4 },
-        { id: '5', name: 'إعلانات', name_en: 'Ads', slug: 'ads', sort_order: 5 }
-      ];
-    }
   }
 
   localCategories = categories;
 
-  // Render list
   if (list) {
     list.innerHTML = categories.map(c => `
       <div class="toggle-row">
@@ -722,7 +847,6 @@ async function loadCategoriesAdmin() {
     `).join('');
   }
 
-  // Populate selects
   const opts = categories.map(c => `<option value="${c.id}">${c.name} (${c.name_en || c.slug})</option>`).join('');
   if (select) select.innerHTML = opts;
   if (editSelect) editSelect.innerHTML = opts;
@@ -811,7 +935,7 @@ async function deleteCategoryCloud(id) {
   await loadCategoriesAdmin();
 }
 
-// 3. Projects Cloud Functions
+// 3. Projects Cloud Functions & Direct Video Upload
 async function loadProjectsAdmin() {
   const container = document.getElementById('adminVideoList');
   if (!container) return;
@@ -857,32 +981,192 @@ async function loadProjectsAdmin() {
   }).join('');
 }
 
-async function addVideoCloud() {
-  const urlInput = document.getElementById('newVideoUrl');
-  const customThumbInput = document.getElementById('newVideoThumbUrl');
+// Handle video file selected for direct upload
+function handleDirectVideoSelection(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  selectedDirectVideoFile = file;
+  document.getElementById('uploadBoxTitle').textContent = `📁 تم اختيار: ${file.name} (${(file.size / (1024*1024)).toFixed(1)} MB)`;
+  document.getElementById('uploadBoxSubtitle').textContent = `جاهز للرفع إلى Cloudflare R2`;
+
+  // Auto-fill title if empty
+  const titleArInput = document.getElementById('newVideoTitleAr');
+  if (titleArInput && !titleArInput.value.trim()) {
+    const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+    titleArInput.value = rawName;
+  }
+
+  // Auto-extract thumbnail frame from video file!
+  extractVideoFrame(file).then(thumbDataUrl => {
+    const preview = document.getElementById('ytPreview');
+    if (preview && thumbDataUrl) {
+      preview.src = thumbDataUrl;
+      preview.style.display = 'block';
+      preview.dataset.autoThumb = thumbDataUrl;
+    }
+  }).catch(() => {});
+}
+
+// Video Frame Extractor (Client-side automatic thumbnail generator)
+function extractVideoFrame(file) {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    video.src = URL.createObjectURL(file);
+
+    video.onloadeddata = () => {
+      video.currentTime = Math.min(1.0, video.duration / 2);
+    };
+
+    video.onseeked = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.min(video.videoWidth, 1280);
+        canvas.height = Math.min(video.videoHeight, 720);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        URL.revokeObjectURL(video.src);
+        resolve(dataUrl);
+      } catch (err) {
+        resolve(null);
+      }
+    };
+
+    video.onerror = () => resolve(null);
+  });
+}
+
+// Upload direct video file to Cloudflare R2 Worker
+function uploadFileToCloudflareR2(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const workerUrl = localStorage.getItem('cfWorkerUrl') || '';
+    if (!workerUrl) {
+      reject(new Error('يرجى ضبط رابط Cloudflare Worker في تبويب إعدادات Cloudflare R2 أولاً'));
+      return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    const cleanFileName = `video-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const uploadUrl = `${workerUrl.replace(/\/$/, '')}?filename=${encodeURIComponent(cleanFileName)}`;
+
+    xhr.open('POST', uploadUrl, true);
+    xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+    xhr.setRequestHeader('X-Filename', cleanFileName);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        onProgress(percent);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          if (res.success && res.url) {
+            resolve(res.url);
+          } else {
+            reject(new Error(res.error || 'Upload error'));
+          }
+        } catch (e) {
+          resolve(xhr.responseText);
+        }
+      } else {
+        reject(new Error(`Server returned status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.send(file);
+  });
+}
+
+// Submit New Video (Handles both direct Cloudflare R2 upload and pasted URLs)
+async function submitNewVideo() {
+  const btn = document.getElementById('addVideoBtn');
   const titleAr = document.getElementById('newVideoTitleAr').value.trim();
   const titleEn = document.getElementById('newVideoTitleEn').value.trim();
   const catSelect = document.getElementById('newVideoCategorySelect');
   const software = document.getElementById('newVideoSoftware').value.split(',').map(s => s.trim()).filter(Boolean);
   const featured = document.getElementById('newVideoFeatured').checked;
+  const customThumb = document.getElementById('newVideoThumbUrl').value.trim();
 
-  if (!urlInput || !urlInput.value.trim() || !titleAr) {
-    showToast('يرجى ملء رابط الفيديو والعنوان');
+  if (!titleAr) {
+    showToast('يرجى كتابة عنوان الفيديو');
     return;
   }
 
-  const rawUrl = urlInput.value.trim();
-  const info = parseVideoInfo(rawUrl);
-  const customThumb = customThumbInput ? customThumbInput.value.trim() : '';
-  const finalThumb = customThumb || info.thumbUrl || '';
+  let finalVideoUrl = '';
+  let finalThumbUrl = customThumb;
 
+  // Case A: Direct File Upload to Cloudflare R2
+  if (currentUploadMode === 'file') {
+    if (!selectedDirectVideoFile) {
+      showToast('يرجى اختيار ملف فيديو لرفعه');
+      return;
+    }
+
+    const workerUrl = localStorage.getItem('cfWorkerUrl');
+    if (!workerUrl) {
+      adminNav('cloudflare');
+      showToast('⚠️ يرجى كتابة رابط الـ Worker في هذا القسم أولاً');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = 'جاري رفع الفيديو إلى Cloudflare R2... ⏳';
+
+    const progContainer = document.getElementById('uploadProgressContainer');
+    const progBar = document.getElementById('uploadProgressBar');
+    const progText = document.getElementById('uploadProgressText');
+
+    progContainer.style.display = 'block';
+    progBar.style.width = '0%';
+    progText.textContent = '0%';
+
+    try {
+      finalVideoUrl = await uploadFileToCloudflareR2(selectedDirectVideoFile, (percent) => {
+        progBar.style.width = `${percent}%`;
+        progText.textContent = `جاري الرفع إلى Cloudflare R2: ${percent}%`;
+      });
+
+      // Auto thumbnail if none specified
+      const preview = document.getElementById('ytPreview');
+      if (!finalThumbUrl && preview && preview.dataset.autoThumb) {
+        finalThumbUrl = preview.dataset.autoThumb;
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '➕ حفظ وإضافة الفيديو إلى Supabase';
+      progContainer.style.display = 'none';
+      showToast('فشل الرفع: ' + err.message);
+      return;
+    }
+  } else {
+    // Case B: Pasted URL
+    const urlInput = document.getElementById('newVideoUrl');
+    finalVideoUrl = urlInput ? urlInput.value.trim() : '';
+    if (!finalVideoUrl) {
+      showToast('يرجى كتابة رابط الفيديو');
+      return;
+    }
+    const info = parseVideoInfo(finalVideoUrl);
+    if (!finalThumbUrl) finalThumbUrl = info.thumbUrl || '';
+  }
+
+  const info = parseVideoInfo(finalVideoUrl);
   const payload = {
     title: titleAr,
     title_en: titleEn || titleAr,
     slug: 'video-' + Date.now(),
-    video_url: rawUrl,
+    video_url: finalVideoUrl,
     youtube_id: info.type === 'youtube' ? info.id : null,
-    thumbnail_url: finalThumb,
+    thumbnail_url: finalThumbUrl,
     category_id: catSelect.value || null,
     software: software,
     featured: featured,
@@ -892,25 +1176,39 @@ async function addVideoCloud() {
 
   if (isSupabaseConnected()) {
     const { error } = await supabaseClient.from('projects').insert(payload);
-    if (error) { showToast('خطأ: ' + error.message); return; }
+    if (error) { showToast('خطأ: ' + error.message); btn.disabled = false; return; }
   } else {
     payload.id = Date.now().toString();
     localProjects.push(payload);
     localStorage.setItem('portfolioVideos', JSON.stringify(localProjects));
   }
 
-  showToast('تمت إضافة الفيديو بنجاح ✓');
-  urlInput.value = '';
-  if (customThumbInput) customThumbInput.value = '';
+  btn.disabled = false;
+  btn.innerHTML = '➕ حفظ وإضافة الفيديو إلى Supabase';
+  document.getElementById('uploadProgressContainer').style.display = 'none';
+  selectedDirectVideoFile = null;
+  document.getElementById('uploadBoxTitle').textContent = 'اضغط لاختيار ملف فيديو من جهازك (MP4 / WebM / MOV)';
+  document.getElementById('uploadBoxSubtitle').textContent = 'سيتم رفع الفيديو مباشرة إلى مساحة Cloudflare R2 واستخراج صورة الغلاف تلقائياً';
   document.getElementById('newVideoTitleAr').value = '';
   document.getElementById('newVideoTitleEn').value = '';
   document.getElementById('newVideoSoftware').value = '';
+  document.getElementById('newVideoThumbUrl').value = '';
   document.getElementById('newVideoFeatured').checked = false;
+  if (document.getElementById('newVideoUrl')) document.getElementById('newVideoUrl').value = '';
   document.getElementById('ytPreview').style.display = 'none';
 
+  showToast('تم رفع وحفظ الفيديو بنجاح ✓');
   await loadProjectsAdmin();
 }
 
+// 4. Cloudflare Worker Settings
+function saveCloudflareWorkerSettings() {
+  const url = document.getElementById('cfWorkerUrlInput').value.trim();
+  localStorage.setItem('cfWorkerUrl', url);
+  showToast('تم حفظ رابط الـ Worker بنجاح ✓');
+}
+
+// 5. Edit and Delete Project Modals
 function openEditProjectModal(id) {
   const p = localProjects.find(item => item.id == id);
   if (!p) return;
@@ -977,7 +1275,7 @@ async function deleteProjectCloud(id) {
   await loadProjectsAdmin();
 }
 
-// 4. Design Cloud Save
+// 6. Design Cloud Save
 async function saveDesignCloud() {
   const accent = document.getElementById('accentColorPicker').value;
   const darkBg = document.getElementById('bgDarkPicker').value;
@@ -1023,7 +1321,7 @@ function saveFontsCloud() {
   showToast('تم حفظ الخطوط ✓');
 }
 
-// 5. Socials Cloud Save
+// 7. Socials Cloud Save
 function renderSocialsEdit() {
   const data = getSiteData();
   const container = document.getElementById('socialRowsContainer');
@@ -1087,7 +1385,7 @@ async function saveSocialsCloud() {
   showToast('تم حفظ روابط السوشيال ميديا ✓');
 }
 
-// 6. Security & Password Update
+// 8. Security & Password Update
 async function changeAdminPassword() {
   const newPass = document.getElementById('newPasswordInput').value.trim();
   if (!newPass || newPass.length < 6) {
@@ -1107,41 +1405,16 @@ async function changeAdminPassword() {
   showToast('تم تحديث كلمة المرور بنجاح ✓');
 }
 
-// Photo upload with Supabase Storage support
-async function handlePhotoUpload(e) {
+// Photo upload preview
+function handlePhotoUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  
-  showToast('جاري معالجة ورفع الصورة...');
-  let photoUrl = '';
-
-  if (isSupabaseConnected()) {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar-${Date.now()}.${fileExt}`;
-      const { data, error } = await supabaseClient.storage.from('portfolio-media').upload(fileName, file);
-      if (!error) {
-        const { data: publicData } = supabaseClient.storage.from('portfolio-media').getPublicUrl(fileName);
-        if (publicData && publicData.publicUrl) {
-          photoUrl = publicData.publicUrl;
-        }
-      }
-    } catch (err) {
-      console.log('Storage upload notice:', err);
-    }
-  }
-
-  if (!photoUrl) {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      photoUrl = ev.target.result;
-      applyAndSavePhoto(photoUrl);
-    };
-    reader.readAsDataURL(file);
-    return;
-  }
-
-  applyAndSavePhoto(photoUrl);
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const base64 = ev.target.result;
+    applyAndSavePhoto(base64);
+  };
+  reader.readAsDataURL(file);
 }
 
 function applyAndSavePhoto(url) {
@@ -1157,13 +1430,7 @@ function applyAndSavePhoto(url) {
     supabaseClient.from('site_settings').upsert({
       key: 'profile',
       value: {
-        name_ar: current.name_ar,
-        name_en: current.name_en,
-        title_ar: current.title_ar,
-        title_en: current.title_en,
         dob: current.dob,
-        bio_ar: current.bio_ar,
-        bio_en: current.bio_en,
         profile_photo: url
       }
     }, { onConflict: 'key' });
@@ -1172,7 +1439,7 @@ function applyAndSavePhoto(url) {
   showToast('تم تحديث صورة البروفايل بنجاح ✓');
 }
 
-// Video Preview helper (Cloudflare Stream, Cloudflare R2, YouTube)
+// Video Preview helper
 function previewVideoAdmin() {
   const urlInput = document.getElementById('newVideoUrl');
   const customThumbInput = document.getElementById('newVideoThumbUrl');

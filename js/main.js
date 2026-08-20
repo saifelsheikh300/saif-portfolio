@@ -422,9 +422,10 @@ function renderVideoCards(videos, containerId) {
 
   videos.forEach(video => {
     const card = document.createElement('div');
-    card.className = 'video-card reveal';
     const rawUrl = video.video_url || video.youtube_url || '';
     const info = parseVideoInfo(rawUrl);
+    const isVertical = video.orientation === 'vertical' || video.aspect_ratio === 'vertical' || info.isVertical;
+    card.className = `video-card reveal ${isVertical ? 'vertical' : 'horizontal'}`;
     const ytId = video.youtube_id || (info.type === 'youtube' ? info.id : 'dQw4w9WgXcQ');
     const thumbUrl = video.thumbnail_url || info.thumbUrl || `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
 
@@ -633,10 +634,12 @@ function parseVideoInfo(url) {
   const ytMatch = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([^&\n?#]+)/);
   if (ytMatch) {
     const id = ytMatch[1];
+    const isShorts = u.includes('/shorts/');
     return {
       type: 'youtube',
       id: id,
-      embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1`,
+      isVertical: isShorts,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&controls=1&enablejsapi=1`,
       thumbUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
     };
   }
@@ -678,7 +681,7 @@ function parseVideoInfo(url) {
     };
   }
 
-  // 4. Direct video files (Cloudflare R2, MP4, WebM, MOV)
+  // 5. Direct video files (Cloudflare R2, MP4, WebM, MOV)
   if (u.match(/\.(mp4|webm|mov|m4v|ogg)(\?.*)?$/i) || u.includes('r2.dev') || u.includes('r2.cloudflarestorage.com')) {
     return {
       type: 'direct',
@@ -705,6 +708,18 @@ function openModal(video) {
 
   const url = video.video_url || video.youtube_url || '';
   const info = parseVideoInfo(url);
+  const isVertical = video.orientation === 'vertical' || video.aspect_ratio === 'vertical' || info.isVertical;
+
+  const modalBox = overlay.querySelector('.modal-box');
+  if (modalBox) {
+    if (isVertical) {
+      modalBox.classList.add('vertical');
+      modalBox.classList.remove('horizontal');
+    } else {
+      modalBox.classList.add('horizontal');
+      modalBox.classList.remove('vertical');
+    }
+  }
 
   if (titleEl) {
     titleEl.textContent = state.lang === 'ar' ? (video.title_ar || video.title || 'عرض الفيديو') : (video.title_en || video.title_ar || video.title || 'Video Player');

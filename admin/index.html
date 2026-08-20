@@ -310,9 +310,18 @@
           </div>
         </div>
 
-        <div>
-          <label class="admin-label">البرامج المستخدمة (مفصولة بفواصل)</label>
-          <input id="newVideoSoftware" class="admin-input" type="text" placeholder="Premiere Pro, After Effects">
+        <div class="admin-grid-2">
+          <div>
+            <label class="admin-label">البرامج المستخدمة (مفصولة بفواصل)</label>
+            <input id="newVideoSoftware" class="admin-input" type="text" placeholder="Premiere Pro, After Effects">
+          </div>
+          <div>
+            <label class="admin-label">📐 نمط العرض (Orientation)</label>
+            <select id="newVideoOrientation" class="admin-input" style="cursor:pointer;">
+              <option value="horizontal">🎬 أفقي / عرضي (16:9 - يوتيوب عادي / فيديو عريض)</option>
+              <option value="vertical">📱 طولي / رأسي (9:16 - ريلز / شورتس / تيك توك)</option>
+            </select>
+          </div>
         </div>
 
         <div style="margin-bottom:16px; margin-top:8px;">
@@ -513,6 +522,13 @@
           <label class="admin-label">البرامج المستخدمة</label>
           <input id="editProjSoftware" class="admin-input" type="text">
         </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="admin-label">📐 نمط العرض (Orientation)</label>
+        <select id="editProjOrientation" class="admin-input" style="cursor:pointer;">
+          <option value="horizontal">🎬 أفقي / عرضي (16:9 - يوتيوب عادي)</option>
+          <option value="vertical">📱 طولي / رأسي (9:16 - ريلز / شورتس / تيك توك)</option>
+        </select>
       </div>
       <div style="margin-bottom:20px;">
         <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem;">
@@ -1160,6 +1176,7 @@ async function submitNewVideo() {
   }
 
   const info = parseVideoInfo(finalVideoUrl);
+  const orientation = document.getElementById('newVideoOrientation') ? document.getElementById('newVideoOrientation').value : 'horizontal';
   const payload = {
     title: titleAr,
     title_en: titleEn || titleAr,
@@ -1169,6 +1186,7 @@ async function submitNewVideo() {
     category_id: catSelect.value || null,
     software: software,
     featured: featured,
+    orientation: orientation,
     published: true,
     sort_order: localProjects.length + 1
   };
@@ -1194,6 +1212,7 @@ async function submitNewVideo() {
   document.getElementById('newVideoThumbUrl').value = '';
   document.getElementById('newVideoFeatured').checked = false;
   if (document.getElementById('newVideoUrl')) document.getElementById('newVideoUrl').value = '';
+  if (document.getElementById('newVideoOrientation')) document.getElementById('newVideoOrientation').value = 'horizontal';
   document.getElementById('ytPreview').style.display = 'none';
 
   showToast('تم رفع وحفظ الفيديو بنجاح ✓');
@@ -1220,6 +1239,9 @@ function openEditProjectModal(id) {
   document.getElementById('editProjCategorySelect').value = p.category_id || '';
   document.getElementById('editProjSoftware').value = (p.software || []).join(', ');
   document.getElementById('editProjFeatured').checked = !!p.featured;
+  if (document.getElementById('editProjOrientation')) {
+    document.getElementById('editProjOrientation').value = p.orientation || (p.aspect_ratio === 'vertical' ? 'vertical' : 'horizontal');
+  }
 
   document.getElementById('editProjectModal').classList.add('open');
 }
@@ -1234,6 +1256,7 @@ async function saveEditedProjectCloud() {
   const customThumb = document.getElementById('editProjThumbUrl').value.trim();
   const info = parseVideoInfo(rawUrl);
   const finalThumb = customThumb || info.thumbUrl || '';
+  const orientation = document.getElementById('editProjOrientation') ? document.getElementById('editProjOrientation').value : 'horizontal';
 
   const payload = {
     title: document.getElementById('editProjTitleAr').value.trim(),
@@ -1242,7 +1265,8 @@ async function saveEditedProjectCloud() {
     thumbnail_url: finalThumb,
     category_id: document.getElementById('editProjCategorySelect').value || null,
     software: document.getElementById('editProjSoftware').value.split(',').map(s => s.trim()).filter(Boolean),
-    featured: document.getElementById('editProjFeatured').checked
+    featured: document.getElementById('editProjFeatured').checked,
+    orientation: orientation
   };
 
   if (isSupabaseConnected()) {
@@ -1441,12 +1465,17 @@ function applyAndSavePhoto(url) {
 function previewVideoAdmin() {
   const urlInput = document.getElementById('newVideoUrl');
   const customThumbInput = document.getElementById('newVideoThumbUrl');
+  const orientSelect = document.getElementById('newVideoOrientation');
   const preview = document.getElementById('ytPreview');
   if (!urlInput || !preview) return;
 
   const rawUrl = urlInput.value.trim();
   const info = parseVideoInfo(rawUrl);
   const customThumb = customThumbInput ? customThumbInput.value.trim() : '';
+
+  if (orientSelect && (rawUrl.includes('/shorts/') || rawUrl.includes('tiktok.com') || rawUrl.includes('instagram.com/reel'))) {
+    orientSelect.value = 'vertical';
+  }
 
   if (customThumb) {
     preview.src = customThumb;

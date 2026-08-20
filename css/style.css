@@ -650,6 +650,14 @@ body[lang="en"] .service-name { font-family: var(--font-en); }
   aspect-ratio: 16/9;
   overflow: hidden;
   background: #111827;
+  transition: aspect-ratio 0.3s;
+}
+.video-card.vertical .video-thumb {
+  aspect-ratio: 9/16;
+  max-height: 480px;
+}
+.video-card.horizontal .video-thumb {
+  aspect-ratio: 16/9;
 }
 .video-thumb img {
   width: 100%; height: 100%;
@@ -731,7 +739,11 @@ body[lang="en"] .video-title { font-family: var(--font-en); }
   border-radius: 20px;
   overflow: hidden;
   transform: scale(0.9);
-  transition: transform 0.3s;
+  transition: transform 0.3s, max-width 0.3s;
+}
+.modal-box.vertical {
+  max-width: 440px;
+  margin: auto;
 }
 .modal-overlay.open .modal-box { transform: scale(1); }
 .modal-header {
@@ -759,6 +771,11 @@ body[lang="en"] .video-title { font-family: var(--font-en); }
   position: relative;
   aspect-ratio: 16/9;
   background: #000;
+  transition: aspect-ratio 0.3s;
+}
+.modal-box.vertical .modal-video {
+  aspect-ratio: 9/16;
+  max-height: 80vh;
 }
 .modal-video iframe,
 .modal-video video {
